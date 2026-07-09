@@ -1,0 +1,185 @@
+# React + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## React Compiler
+
+The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+# สินค้าเเบรนเนมเเละเครื่องสำอาง
+
+---
+
+# Table of Contents
+
+- [1. ผู้มีส่วนร่วม (Contributors)](#1-ผู้มีส่วนร่วม-contributors)
+- [2. หลักการและเหตุผล (Rationale)](#2-หลักการและเหตุผล-rationale)
+- [3. วัตถุประสงค์ของโครงงาน (Objectives)](#3-วัตถุประสงค์ของโครงงาน-objectives)
+- [4. ขอบเขตของระบบ (System Scope)](#4-ขอบเขตของระบบ-system-scope)
+- [5. แนวทางของการพัฒนาตาม SDLC](#5-แนวทางของการพัฒนาตาม-sdlc)
+- [6. Tech Stack](#6-tech-stack)
+- [7. แนวทางการทดสอบ (Testing Approach)](#7-แนวทางการทดสอบ-testing-approach)
+- [8. ผลลัพธ์ที่คาดว่าจะได้รับ (Expected Outcomes)](#8-ผลลัพธ์ที่คาดว่าจะได้รับ-expected-outcomes)
+- [9. แผนการดำเนินงาน 4 สัปดาห์ (Work Plan)](#9-แผนการดำเนินงาน-4-สัปดาห์-work-plan)
+- [10. Requirement](#10-requirement)
+- [11. User Personas](#11-user-personas)
+- [12. Use Case Diagram](#12-use-case-diagram)
+- [13. Class Diagram](#13-class-diagram)
+- [14. Sequence Diagrams](#14-sequence-diagrams)
+- [15. Wireframe](#15-wireframe)
+- [16. System Architecture](#16-system-architecture)
+
+---
+# 1. ผู้มีส่วนร่วม (Contributors)
+
+| Name | Student ID | Role | GitHub |
+|------|------------|------|--------|
+| Name | 67164374   | ระบบสมาชิก | @KiNgFoRrEd |
+| Name | 67158212 | ระบบสั่งซื้อสินค้า | @PoohOnsen|
+| Name | 67158116 | ระบบตะกร้าสินค้า| @NakataX1 |
+| Name | 67154596 | รายละเอียดสินค้า | @Leocannady01z|
+| Name | 67156414 | ผู้ดูเเลระบบ | @ttwsrq |
+
+---
+# 2. หลักการและเหตุผล (Rationale)
+
+- โครงงานนี้จัดทำขค้นเพื่อพัฒนาแพลตฟอร์ม e-Commerce ซื้อขายสินค้าเเบรนเนมเเละเครื่องสำอาง
+  โดยตัวระบบ มุ่งเน้นการบูรณการเทคโนโลยี React , Node.js และ Local Storage เพื่ออำนวยความสะดวกแก่ผู้ใช้งานในทุกสถานที่พร้อมทั้งมีระบบหลังบ้านที่ช่วยให้ผู้บริหารจัดการข้อมูลสินค้าและควบคุมคลังสต็อกได้อย่างถูกต้อง แม่นยำ และมีประสิทธิภาพ
+
+---
+# 3. วัตถุประสงค์ของโครงงาน (Objectives)
+
+1. เพื่ออำนวยความสะดวกให้ผู้ใช้งานสามารถค้นหาและเลือกสินค้าได้รวดเร็ว
+
+2. เพื่อพัฒนาระบบซื้อขายสินค้าแบรนด์เนมและน้ำหอมผ่านเว็บไซต์
+
+3. เพื่อศึกษาและประยุกต์ใช้กระบวนการพัฒนาซอฟต์แวร์ในการสร้างระบบสารสนเทศ
+
+---
+# 4. ขอบเขตของระบบ (System Scope)
+
+- ล็อคอิน / สมัครสมาชิก
+- การค้นหาสินค้า
+- การดูรายละเอียดสินค้า
+- การจัดการตะกร้าสินค้า
+- ระบบสั่งซื้อสินค้า
+- ระบบชำระเงิน
+- ระบบจัดการข้อมูลสินค้า
+- ดูประวัติการสั่งซื้อ
+
+## User Roles
+
+| Role |
+|------|
+| Admin | 
+| Customers |
+| Manager |
+
+---
+
+# 5. แนวทางของการพัฒนาตาม SDLC
+
+## SDLC Model
+
+### Phase 1 - Planning
+
+- ประชุมวางแผนกำหนดขอบเขตระบบ แบ่งหน้าที่รับผิดชอบของสมาชิกทั้ง 5 คน และกำหนดกรอบเวลา
+
+### Phase 2 - Analysis
+
+- วิเคราะห์ความต้องการระบบ รวบรวมข้อมูลจำเพาะของอุปกรณ์คอมพิวเตอร์ และพฤติกรรมการซื้อของผู้ใช้
+
+### Phase 3 - Design
+
+- ออกแบบสถาปัตยกรรมข้อมูล โครงสร้างระบบแผนภาพ Flowchart ด้วย Draw.io และออกแบบหน้าจอติดต่อผู้ใช้ (UI/UX) ด้วย Figma
+
+### Phase 4 - Development
+
+- เขียนโปรแกรมฝั่ง Frontend ด้วย React และ Tailwind CSS เชื่อมต่อกับ Backend Node.js และจัดการข้อมูลผ่าน Local Storage
+
+### Phase 5 - Testing
+
+- ดำเนินการทดสอบระบบผ่านเครื่องมือ Postman ทำ Manual Testing และ UAT ตรวจสอบบั๊กและแก้ไขลอจิกให้ถูกต้องตามเงื่อนไข
+
+### Phase 6 - Deployment
+
+- จัดเตรียมโครงสร้างแพลตฟอร์มเพื่อส่งมอบโครงงานบูรณาการระบบหน้าบ้านและหลีงบ้าน ให้ทำงานร่วมกันอย่างสมบูรณ์
+
+### Phase 7 - Maintenance
+
+- สรุปผลการพัฒนา ตรวจสอบเสถียรภาพของการจัดเก็บข้อมูล ใน Local Storage และจัดทำเอกสารประกอบรายงาน
+
+---
+
+# 6. Tech Stack
+
+## Frontend
+
+- REACT VITE
+- TAILSWIND CSS
+- Library etc.
+
+## Backend
+
+- Node js
+- etc.
+
+## Database
+
+- Local Storage
+
+## DevOps
+
+- GitHub Actions
+
+## Tools
+
+- Figma
+- Postman
+- VS Code
+- Git Desktop
+- Manual Testing
+
+---
+
+# 7. แนวทางการทดสอบ (Testing Approach)
+
+## Testing Types
+
+- Functional Testing
+- API Testing
+- User Acceptance Testing (UAT)
+
+---
+
+# 8. ผลลัพธ์ที่คาดว่าจะได้รับ (Expected Outcomes)
+
+1. ได้ระบบซื้อขายสินค้าแบรนด์เนมและน้ำหอมที่สามารถใช้งานได้จริง
+
+2. ผู้ใช้งานสามารถค้นหา เลือกซื้อ และติดตามคำสั่งซื้อได้อย่างสะดวก
+
+3. ผู้ดูแลระบบสามารถจัดการข้อมูลสินค้าและคำสั่งซื้อได้อย่างมีประสิทธิภาพ
+
+4. ผู้พัฒนาได้รับความรู้และประสบการณ์ในการออกแบบและพัฒนาระบบ
+
+---
+
+# 9. แผนการดำเนินงาน 4 สัปดาห์ (Work Plan)
+
+| Week | Tasks | Status |
+|------|-------|--------|
+| Week 1 | วิเคราะห์และออกแบบระบบ | ประชุมกลุ่มสรุปฟังก์ชันที่ต้องการ, วาด Flowchart ระบบด้วย Draw.io และออกแบบ Wireframe/UI Prototype ทุกหน้าด้วย Figma |
+| Week 2 | พัฒนา Frontend | ขึ้นฟอร์ม โครงสร้างโปรเจกต์ เขียนโค้ดหน้าจอผู้ใช้ด้วย React และจัดหน้าตาด้วย Tailwind CSS ให้รองรับระบบค้นหาและระบบตะกร้า |
+| Week 3 | พัฒนา Backend และ ฐานข้อมูล | เขียนระบบประมวลผลฝั่งหลังบ้านด้วย Node.js พัฒนา RESTful API และเขียนเงื่อนไขการเรียกใช้ข้อมูลแบบ Client-Side ผ่าน Local Storage |
+| Week 4 | ทดสอบและนำเสนอผลงาน | ทำ API Testing ด้วย Postman ทำการทดสอบ Functional & UAT ด้วย Manual Testing ตรวจสอบความถูกต้อง เก็บตกบั๊ก และจัดเตรียมสไลด์นำเสนอโครงการ |
+
+---
