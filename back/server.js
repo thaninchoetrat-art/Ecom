@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import cors from 'cors'; // 👈 1. เติมตัวเปิดล็อกประตูเชื่อมเน็ตตรงนี้
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import inventoryRoutes from './routes/inventoryRoutes.js';
@@ -13,6 +14,8 @@ import loyaltyRoutes from './routes/loyaltyRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
 
 const app = express();
+
+app.use(cors()); // 👈 2. เติมคำสั่งเปิดใช้งานตรงนี้ (เพื่อให้หน้าบ้าน Port 5173 ยิงมาหาได้สำเร็จ)
 app.use(bodyParser.json());
 
 app.use('/api/auth', authRoutes);
