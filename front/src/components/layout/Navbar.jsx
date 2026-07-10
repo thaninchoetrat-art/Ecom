@@ -1,4 +1,113 @@
-import React from 'react';
-export default function Navbar(){
-  return <nav>Navbar</nav>;
+import { Link, NavLink } from "react-router-dom";
+import {
+  FiSearch,
+  FiShoppingCart,
+  FiUser,
+  FiMenu,
+  FiX,
+} from "react-icons/fi";
+import { useState } from "react";
+
+const menus = [
+  { name: "หน้าแรก", path: "/" },
+  { name: "หมวดหมู่สินค้า", path: "/shop" },
+  { name: "แบรนด์ทั้งหมด", path: "/brands" },
+  { name: "สินค้าใหม่", path: "/new" },
+  { name: "คอลเลคชั่นพิเศษ", path: "/collection" },
+  { name: "โปรโมชั่นออนไลน์", path: "/promotion" },
+  { name: "ร้านคาร์มาร์ท", path: "/stores" },
+];
+
+export default function Navbar() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  return (
+    <header className="sticky top-0 z-50 border-b border-pink-100 bg-white/90 backdrop-blur-xl">
+
+      {/* ปรับตรงนี้: เปลี่ยนจาก px-6 เป็น px-4 sm:px-6 lg:px-8 เพื่อให้ระยะขอบลื่นไหลตามจอ */}
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+
+        {/* 
+          [แก้ไขจุดสำคัญมาก]: 
+          เปลี่ยนจาก max-w-full เป็น max-w-7xl เพื่อบล็อกความกว้างของแถบเมนู 
+          ให้ตรงกึ่งกลางแนวเดียวกับกล่องสินค้าด้านล่างพอดีเป๊ะ โลโก้จะขยับมาทางขวาอัตโนมัติอย่างสวยงาม
+        */}
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between">
+
+          {/* Logo - เอา ml-6 และ lg:ml-12 ออกได้เลยเพราะโครงสร้างหลักถูกจัดกึ่งกลางให้แล้ว */}
+          <Link
+            to="/"
+            className="text-3xl font-black tracking-tight text-pink-600 sm:text-4xl"
+          >
+          5 Paul
+          </Link>
+
+          {/* Desktop Menu */}
+          <nav className="hidden lg:flex items-center gap-10">
+            {menus.map((menu) => (
+              <NavLink
+                key={menu.name}
+                to={menu.path}
+                className={({ isActive }) =>
+                  `text-[15px] transition ${
+                    isActive
+                      ? "text-pink-600 font-bold"
+                      : "text-gray-700 hover:text-pink-600"
+                  }`
+                }
+              >
+                {menu.name}
+              </NavLink>
+            ))}
+          </nav>
+
+          {/* Right */}
+          <div className="flex items-center gap-6">
+            <button className="rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
+              <FiSearch />
+            </button>
+
+            <button className="relative rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
+              <FiShoppingCart />
+              <span className="absolute -top-2 -right-3 h-5 w-5 rounded-full bg-pink-600 text-white text-[11px] flex items-center justify-center">
+                0
+              </span>
+            </button>
+
+            <button className="rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
+              <FiUser />
+            </button>
+
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 lg:hidden"
+            >
+              {mobileOpen ? <FiX /> : <FiMenu />}
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* Mobile Menu */}
+      {mobileOpen && (
+        <div className="lg:hidden border-t">
+          <div className="px-6 py-5 space-y-5">
+            {menus.map((menu) => (
+              <NavLink
+                key={menu.name}
+                to={menu.path}
+                onClick={() => setMobileOpen(false)}
+                className="block text-gray-700 hover:text-pink-600"
+              >
+                {menu.name}
+              </NavLink>
+            ))}
+          </div>
+        </div>
+      )}
+
+    </header>
+  );
 }
