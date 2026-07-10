@@ -1,4 +1,5 @@
-// เก็บไว้แค่ฟังก์ชันนี้เพื่ออัปโหลดรูปเท่านั้น
+// ในไฟล์ controllers/productController.js
+
 export async function uploadProductImage(req, res) {
   try {
     if (!req.file) return res.status(400).json({ message: "No file provided" });

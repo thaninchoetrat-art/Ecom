@@ -73,10 +73,11 @@ export default function Navbar() {
                 0
               </span>
             </button>
-
+              <Link to="/login">
             <button className="rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
               <FiUser />
             </button>
+            </Link>
 
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
