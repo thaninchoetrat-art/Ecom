@@ -6,10 +6,12 @@ import {
   FiMenu,
   FiX,
 } from "react-icons/fi";
-import { useState } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
+import { CartContext } from "../../page/cart/CartContext";
 
 const menus = [
-  { name: "หน้าแรก", path: "/" },
+  // 1. แก้ไขตรงนี้: เปลี่ยน path จาก "/home" เป็น "/"
+  { name: "หน้าแรก", path: "/" }, 
   { name: "หมวดหมู่สินค้า", path: "/shop" },
   { name: "แบรนด์ทั้งหมด", path: "/brands" },
   { name: "สินค้าใหม่", path: "/new" },
@@ -20,21 +22,29 @@ const menus = [
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { totalItems } = useContext(CartContext) || { totalItems: 0 };
+  const [bounce, setBounce] = useState(false);
+  const isFirstRender = useRef(true);
+
+  // ✨ ทำให้ตัวเลขบนไอคอนตะกร้า "เด้ง" ทุกครั้งที่จำนวนสินค้าเปลี่ยนแปลง
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setBounce(true);
+    const timer = setTimeout(() => setBounce(false), 400);
+    return () => clearTimeout(timer);
+  }, [totalItems]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-pink-100 bg-white/90 backdrop-blur-xl">
 
-      {/* ปรับตรงนี้: เปลี่ยนจาก px-6 เป็น px-4 sm:px-6 lg:px-8 เพื่อให้ระยะขอบลื่นไหลตามจอ */}
       <div className="w-full px-4 sm:px-6 lg:px-8">
 
-        {/* 
-          [แก้ไขจุดสำคัญมาก]: 
-          เปลี่ยนจาก max-w-full เป็น max-w-7xl เพื่อบล็อกความกว้างของแถบเมนู 
-          ให้ตรงกึ่งกลางแนวเดียวกับกล่องสินค้าด้านล่างพอดีเป๊ะ โลโก้จะขยับมาทางขวาอัตโนมัติอย่างสวยงาม
-        */}
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between">
 
-          {/* Logo - เอา ml-6 และ lg:ml-12 ออกได้เลยเพราะโครงสร้างหลักถูกจัดกึ่งกลางให้แล้ว */}
+          {/* 2. แก้ไขตรงนี้: เปลี่ยน to จาก "/home" เป็น "/" เพื่อให้กดโลโก้แล้วกลับหน้าแรกได้ */}
           <Link
             to="/"
             className="text-3xl font-black tracking-tight text-pink-600 sm:text-4xl"
@@ -67,16 +77,24 @@ export default function Navbar() {
               <FiSearch />
             </button>
 
-            <button className="relative rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
-              <FiShoppingCart />
-              <span className="absolute -top-2 -right-3 h-5 w-5 rounded-full bg-pink-600 text-white text-[11px] flex items-center justify-center">
-                0
-              </span>
-            </button>
-              <Link to="/login">
-            <button className="rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
-              <FiUser />
-            </button>
+            <Link to="/cart">
+              <button className="relative rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
+                <FiShoppingCart />
+                {totalItems > 0 && (
+                  <span
+                    className={`absolute -top-2 -right-3 h-5 min-w-[20px] rounded-full bg-pink-600 px-1 text-white text-[11px] flex items-center justify-center transition-transform duration-300 ${
+                      bounce ? "scale-125" : "scale-100"
+                    }`}
+                  >
+                    {totalItems > 99 ? "99+" : totalItems}
+                  </span>
+                )}
+              </button>
+            </Link>
+            <Link to="/profile">
+              <button className="rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
+                <FiUser />
+              </button>
             </Link>
 
             <button

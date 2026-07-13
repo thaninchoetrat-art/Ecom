@@ -69,8 +69,8 @@ function App() {
 
                 alert(`เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับคุณ ${data.user.name}`);
                 
-                // เปลี่ยนหน้าไปที่ Dashboard
-                navigate("/dashboard");
+                // แก้ไขจุดที่ 2: เปลี่ยนหน้าไปที่หน้า /admin ตามโครงสร้าง Route ใน App.jsx
+                navigate("/admin");
             } else {
                 alert(data.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง");
             }
@@ -98,7 +98,8 @@ function App() {
                 <Components.Form onSubmit={handleSignInSubmit}>
                     <Components.Title>Sign in</Components.Title>
                     <Components.Input type='email' placeholder='Email' name='email' value={signInData.email} onChange={handleSignInChange} />
-                    <Components.Input type='password' placeholder='Password' name='password' value={signInData.signInData} onChange={handleSignInChange} />
+                    {/* แก้ไขจุดที่ 1: เปลี่ยน value จาก signInData.signInData เป็น signInData.password */}
+                    <Components.Input type='password' placeholder='Password' name='password' value={signInData.password} onChange={handleSignInChange} />
                     <Components.Anchor href='#'>Forgot your password?</Components.Anchor>
                     <Components.Button type="submit">Sign In</Components.Button>
                 </Components.Form>

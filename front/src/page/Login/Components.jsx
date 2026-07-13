@@ -1,5 +1,18 @@
 import styled from 'styled-components';
 
+// 🌟 ตัวนี้เพิ่มเข้ามาใหม่ เพื่อจัดทุกอย่างให้อยู่กึ่งกลางหน้าจอพอดี
+export const PageWrapper = styled.div`
+  display: flex;
+  justify-content: center; /* จัดกึ่งกลางแนวนอน */
+  align-items: center;     /* จัดกึ่งกลางแนวตั้ง */
+  min-height: 100vh;       /* ความสูงเต็มหน้าจอ */
+  width: 100vw;            /* ความกว้างเต็มหน้าจอ */
+  background-color: #121212; /* สีพื้นหลังโทนดาร์กตามรูปของคุณ */
+  box-sizing: border-box;
+  margin: 0;
+  padding: 20px;
+`;
+
 export const Container = styled.div`
   background-color: rgba(255, 255, 255, 0.85); /* เปลี่ยนเป็นขาวโปร่งแสง */
   backdrop-filter: blur(8px); /* เอฟเฟกต์กระจกฝ้าพรีเมียม */
@@ -92,14 +105,14 @@ export const Button = styled.button`
   box-shadow: 0 10px 15px -3px rgba(236, 72, 153, 0.2); /* เงาปุ่มสีชมพูซอฟต์ๆ */
   transition: all 0.2s ease;
   &:hover {
-     transform: translateY(-1px);
-     box-shadow: 0 12px 20px -3px rgba(236, 72, 153, 0.3);
+       transform: translateY(-1px);
+       box-shadow: 0 12px 20px -3px rgba(236, 72, 153, 0.3);
   }
   &:active{
-      transform: scale(0.98);
+       transform: scale(0.98);
   }
   &:focus {
-      outline: none;
+       outline: none;
   }
 `;
 
@@ -109,9 +122,9 @@ export const GhostButton = styled(Button)`
   color: #ffffff;
   box-shadow: none;
   &:hover {
-     background-color: rgba(255, 255, 255, 0.15);
-     box-shadow: none;
-     transform: none;
+       background-color: rgba(255, 255, 255, 0.15);
+       box-shadow: none;
+       transform: none;
   }
 `;
 
@@ -122,7 +135,7 @@ export const Anchor = styled.a`
   margin: 15px 0;
   transition: color 0.3s ease;
   &:hover {
-     color: #db2777; /* ชี้แล้วเปลี่ยนเป็นสีชมพูเด่น */
+       color: #db2777; /* ชี้แล้วเปลี่ยนเป็นสีชมพูเด่น */
   }
 `;
 

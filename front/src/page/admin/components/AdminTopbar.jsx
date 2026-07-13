@@ -15,7 +15,6 @@ const AdminTopbar = ({ onOpenMobile }) => {
   const title = TITLE_MAP[location.pathname] || "แผงควบคุมผู้ดูแลระบบ";
 
   return (
-    /* ปรับปรุง: ใช้ !px-6 md:!px-8 บังคับให้เนื้อหาแถบบนไม่ชิดขอบจอ */
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-gray-100 bg-white/90 !px-6 backdrop-blur md:!px-8">
       <div className="flex items-center gap-3">
         <button
