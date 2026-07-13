@@ -7,8 +7,15 @@ import SearchBox from "./components/layout/SearchBox";
 import CategoryBanner from "./components/banner/CategoryBanner";
 
 import ProductPage from "./page/products/ProductPage";
-import Dashboard from "./page/products/Dashboard/Dashboard";
 import Login from "./page/products/Login/Login";
+
+import AdminLayout from "./page/admin/AdminLayout";
+import AdminDashboard from "./page/admin/AdminDashboard";
+import ProductsManage from "./page/admin/ProductsManage";
+import MembersManage from "./page/admin/MembersManage";
+import OrdersManage from "./page/admin/OrdersManage";
+import InventoryManage from "./page/admin/InventoryManage";
+import ShippingManage from "./page/admin/ShippingManage";
 
 export default function App() {
   return (
@@ -43,8 +50,15 @@ export default function App() {
         {/* หน้า Login */}
         <Route path="/login" element={<Login />} />
 
-        {/* หน้า Dashboard */}
-        <Route path="/dashboard" element={<Dashboard />} />
+        {/* ส่วน Admin: จัดการสินค้า / สมาชิก / คำสั่งซื้อ / คลังสินค้า / การจัดส่ง / แดชบอร์ด */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="products" element={<ProductsManage />} />
+          <Route path="members" element={<MembersManage />} />
+          <Route path="orders" element={<OrdersManage />} />
+          <Route path="inventory" element={<InventoryManage />} />
+          <Route path="shipping" element={<ShippingManage />} />
+        </Route>
       </Routes>
     </div>
   );
