@@ -1,0 +1,125 @@
+import React from "react";
+import * as Components from './Components';
+import { useNavigate } from "react-router-dom";
+
+function App() {
+    const navigate = useNavigate();
+    const [signIn, toggle] = React.useState(true);
+
+    // URL ของ API หลังบ้าน
+    const BACKEND_URL = "http://localhost:4000/api/auth";
+
+    // State สำหรับสมัครสมาชิก
+    const [signUpData, setSignUpData] = React.useState({
+        name: "",
+        email: "",
+        password: ""
+    });
+
+    // State สำหรับล็อกอิน
+    const [signInData, setSignInData] = React.useState({
+        email: "",
+        password: ""
+    });
+
+    const handleSignUpChange = (e) => {
+        setSignUpData({ ...signUpData, [e.target.name]: e.target.value });
+    };
+
+    const handleSignInChange = (e) => {
+        setSignInData({ ...signInData, [e.target.name]: e.target.value });
+    };
+
+    const handleSignUpSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch(`${BACKEND_URL}/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(signUpData)
+            });
+            const data = await response.json();
+            if (data.ok) {
+                alert("สมัครสมาชิกสำเร็จ!");
+                setSignUpData({ name: "", email: "", password: "" });
+                toggle(true);
+            } else {
+                alert(data.message || "เกิดข้อผิดพลาด");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("ไม่สามารถติดต่อเซิร์ฟเวอร์ได้");
+        }
+    };
+
+    const handleSignInSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch(`${BACKEND_URL}/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(signInData)
+            });
+            const data = await response.json();
+
+            if (data.ok) {
+                localStorage.setItem("user_token", data.token);
+                localStorage.setItem("is_logged_in", "true");
+                localStorage.setItem("local_user_name", data.user.name);
+
+                alert(`เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับคุณ ${data.user.name}`);
+                
+                // แก้ไขจุดที่ 2: เปลี่ยนหน้าไปที่หน้า /admin ตามโครงสร้าง Route ใน App.jsx
+                navigate("/admin");
+            } else {
+                alert(data.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+            }
+        } catch (error) {
+            console.error("Error Logging in:", error);
+            alert("ไม่สามารถติดต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบ Backend");
+        }
+    };
+
+    return (
+        <Components.Container>
+            {/* ฝั่ง REGISTER */}
+            <Components.SignUpContainer signinIn={signIn}>
+                <Components.Form onSubmit={handleSignUpSubmit}>
+                    <Components.Title>Create Account</Components.Title>
+                    <Components.Input type='text' placeholder='Name' name='name' value={signUpData.name} onChange={handleSignUpChange} />
+                    <Components.Input type='email' placeholder='Email' name='email' value={signUpData.email} onChange={handleSignUpChange} />
+                    <Components.Input type='password' placeholder='Password' name='password' value={signUpData.password} onChange={handleSignUpChange} />
+                    <Components.Button type="submit">Sign Up</Components.Button>
+                </Components.Form>
+            </Components.SignUpContainer>
+
+            {/* ฝั่ง LOGIN */}
+            <Components.SignInContainer signinIn={signIn}>
+                <Components.Form onSubmit={handleSignInSubmit}>
+                    <Components.Title>Sign in</Components.Title>
+                    <Components.Input type='email' placeholder='Email' name='email' value={signInData.email} onChange={handleSignInChange} />
+                    {/* แก้ไขจุดที่ 1: เปลี่ยน value จาก signInData.signInData เป็น signInData.password */}
+                    <Components.Input type='password' placeholder='Password' name='password' value={signInData.password} onChange={handleSignInChange} />
+                    <Components.Anchor href='#'>Forgot your password?</Components.Anchor>
+                    <Components.Button type="submit">Sign In</Components.Button>
+                </Components.Form>
+            </Components.SignInContainer>
+
+            {/* Overlay */}
+            <Components.OverlayContainer signinIn={signIn}>
+                <Components.Overlay signinIn={signIn}>
+                    <Components.LeftOverlayPanel signinIn={signIn}>
+                        <Components.Title>Welcome Back!</Components.Title>
+                        <Components.GhostButton onClick={() => toggle(true)}>Sign In</Components.GhostButton>
+                    </Components.LeftOverlayPanel>
+                    <Components.RightOverlayPanel signinIn={signIn}>
+                        <Components.Title>Hello, Friend!</Components.Title>
+                        <Components.GhostButton onClick={() => toggle(false)}>Sign Up</Components.GhostButton>
+                    </Components.RightOverlayPanel>
+                </Components.Overlay>
+            </Components.OverlayContainer>
+        </Components.Container>
+    );
+}
+
+export default App;

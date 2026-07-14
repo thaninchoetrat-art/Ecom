@@ -1,0 +1,12 @@
+[
+  {
+    "categoryId": "cat-electronics",
+    "categoryName": "Electronics",
+    "description": "Phones, laptops, and accessories"
+  },
+  {
+    "categoryId": "cat-fashion",
+    "categoryName": "Fashion",
+    "description": "Clothing and accessories"
+  }
+]
