@@ -10,31 +10,28 @@ import * as S from "./profileStyles";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const currentUserName = localStorage.getItem("local_user_name") || "nawamin";
-  
-  // State สำหรับควบคุมการเปลี่ยนหน้าเมนูภายใน
-  const [activeTab, setActiveTab] = useState("profile");
   
   // ตรวจสอบสถานะว่าได้ล็อกอินหรือยัง
   const isLoggedIn = localStorage.getItem("is_logged_in") === "true";
 
-  // เช็คระบบความปลอดภัย: ถ้าไม่มีสถานะล็อกอิน ให้เด้งไปหน้า Login ทันที
-  useEffect(() => {
-    if (!isLoggedIn) {
-      alert("กรุณาเข้าสู่ระบบก่อนใช้งานหน้าโปรไฟล์");
-      navigate("/login");
-    }
-  }, [isLoggedIn, navigate]);
+  // 1. ✨ ประกาศ State สำหรับสลับแท็บเมนู
+  const [activeTab, setActiveTab] = useState("profile");
 
   // State สำหรับข้อมูลส่วนตัว
   const [profileData, setProfileData] = useState(() => {
-    const savedData = localStorage.getItem("user_profile_data");
-    const defaultEmail = localStorage.getItem("local_user_email") || "";
+    try {
+      const savedData = localStorage.getItem("user_profile_data");
+      if (savedData) {
+        return JSON.parse(savedData);
+      }
+    } catch (e) {
+      console.error("Error parsing profile data:", e);
+    }
 
-    return savedData ? JSON.parse(savedData) : {
-      username: currentUserName,
+    return {
+      username: "", 
       fullName: "",
-      email: defaultEmail,
+      email: localStorage.getItem("local_user_email") || "",
       phone: "",
       gender: "male",
       birthDay: "",
@@ -45,8 +42,13 @@ const ProfilePage = () => {
 
   // State สำหรับข้อมูลที่อยู่
   const [addressData, setAddressData] = useState(() => {
-    const savedAddress = localStorage.getItem("user_profile_address");
-    return savedAddress ? JSON.parse(savedAddress) : {
+    try {
+      const savedAddress = localStorage.getItem("user_profile_address");
+      if (savedAddress) return JSON.parse(savedAddress);
+    } catch (e) {
+      console.error("Error parsing address data:", e);
+    }
+    return {
       receiverName: "",
       phone: "",
       detail: "",
@@ -56,6 +58,7 @@ const ProfilePage = () => {
     };
   });
 
+  // 💡 [ปรับปรุง] เพิ่มคีย์ image รอรับค่าไฟล์รูปภาพสินค้าไว้ใน State เพื่อความชัวร์
   const [newProduct, setNewProduct] = useState({
     title: "",
     brand: "",
@@ -63,12 +66,35 @@ const ProfilePage = () => {
     salePrice: "",
     stock: "",
     category: "Cosmetic Collection",
-    description: ""
+    description: "",
+    image: "" 
   });
 
+  // 🖼️ รูปโปรไฟล์สำรอง (Avatar)
   const [avatar, setAvatar] = useState(() => {
-    return localStorage.getItem("user_profile_avatar") || "https://api.dicebear.com/7.x/bottts/svg?seed=nawamin";
+    const savedAvatar = localStorage.getItem("user_profile_avatar");
+    if (savedAvatar) return savedAvatar;
+    
+    const currentName = profileData?.username || "user";
+    return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentName)}`;
   });
+
+  // เช็คระบบความปลอดภัย: ถ้าไม่มีสถานะล็อกอิน ให้เด้งไปหน้า Login
+  useEffect(() => {
+    if (!isLoggedIn) {
+      alert("กรุณาเข้าสู่ระบบก่อนใช้งานหน้าโปรไฟล์");
+      navigate("/login");
+    }
+  }, [isLoggedIn, navigate]);
+
+  // คอยอัปเดตรูปอวาตาร์อัตโนมัติเมื่อผู้ใช้เปลี่ยนชื่อในช่อง username
+  useEffect(() => {
+    const savedAvatar = localStorage.getItem("user_profile_avatar");
+    if (!savedAvatar) {
+      const currentName = profileData?.username || "user";
+      setAvatar(`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentName)}`);
+    }
+  }, [profileData?.username]);
 
   const handleChange = (e) => {
     setProfileData({ ...profileData, [e.target.name]: e.target.value });
@@ -78,8 +104,22 @@ const ProfilePage = () => {
     setAddressData({ ...addressData, [e.target.name]: e.target.value });
   };
 
+  // 💡 [แก้ไขสำเร็จ] ปรับปรุงให้รองรับทั้ง Object จำลองรูปภาพ { name, value } และ Event การพิมพ์ปกติ
   const handleProductChange = (e) => {
-    setNewProduct({ ...newProduct, [e.target.name]: e.target.value });
+    if (e && e.target) {
+      // สำหรับช่องกรอกข้อมูลตัวหนังสือทั่วไป
+      const { name, value } = e.target;
+      setNewProduct((prev) => ({
+        ...prev,
+        [name]: value
+      }));
+    } else if (e && e.name) {
+      // สำหรับรูปภาพ Base64 ที่ส่งแบบ Object ตรงๆ มาจากคอมโพเนนต์ลูก
+      setNewProduct((prev) => ({
+        ...prev,
+        [e.name]: e.value
+      }));
+    }
   };
 
   const handleImageChange = (e) => {
@@ -97,6 +137,10 @@ const ProfilePage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     localStorage.setItem("user_profile_data", JSON.stringify(profileData));
+    
+    if (profileData?.username) {
+      localStorage.setItem("local_user_name", profileData.username);
+    }
     alert("🎉 บันทึกข้อมูลส่วนตัวเรียบร้อยแล้ว!");
   };
 
@@ -106,85 +150,70 @@ const ProfilePage = () => {
     alert("📌 บันทึกที่อยู่จัดส่งสินค้าเรียบร้อยแล้ว!");
   };
 
+  // 💡 ระบบบันทึกสินค้าดึงข้อมูลภาพจากสเตทตรงๆ อย่างมีประสิทธิภาพ
   const handleProductSubmit = (e) => {
     e.preventDefault();
-    const fileInputs = document.querySelectorAll('input[type="file"]');
-    const imageInput = fileInputs[fileInputs.length - 1] || document.querySelector('input[type="file"]');
 
-    const processSave = (imageSrc) => {
-      try {
-        const productWithId = {
-          ...newProduct,
-          id: "prod_" + Date.now(),
-          productId: "prod_" + Date.now(), 
-          name: newProduct.title,
-          productName: newProduct.title,
-          title: newProduct.title,
-          brand: newProduct.brand || "General Brand",
-          price: Number(newProduct.price),
-          discountPrice: newProduct.salePrice ? Number(newProduct.salePrice) : null,
-          salePrice: newProduct.salePrice ? Number(newProduct.salePrice) : null,
-          stock: Number(newProduct.stock) || 0,
-          image: imageSrc || "https://via.placeholder.com/240",
-          images: imageSrc ? [imageSrc] : ["https://via.placeholder.com/240"],
-          imageUrl: imageSrc || "https://via.placeholder.com/240",
-          categoryId: newProduct.category,
-          category: newProduct.category,
-          description: newProduct.description,
-          createdAt: new Date().toISOString()
-        };
+    if (!newProduct.title.trim()) {
+      alert("กรุณากรอกชื่อสินค้า");
+      return;
+    }
 
-        // ✅ เรียกใช้ addProduct เพื่อให้ข้อมูลไปรวมกับที่เดียวกับที่หน้าร้านเรียกใช้งาน
-        addProduct(productWithId);
-        
-        alert(`🎉 เพิ่มสินค้า "${newProduct.title}" เข้าหน้าร้านเรียบร้อยแล้ว!`);
+    try {
+      // ดึงรูปภาพจากค่าดั้งเดิมในสเตท ถ้าไม่มีให้ใช้ placeholder
+      const finalImageSrc = newProduct.image || "https://via.placeholder.com/240";
 
-        setNewProduct({
-          title: "", 
-          brand: "",
-          price: "", 
-          salePrice: "",
-          stock: "",
-          category: "Cosmetic Collection", 
-          description: ""
-        });
-        if (imageInput) imageInput.value = "";
-      } catch (err) {
-        alert("❌ ความจำเต็ม: ขนาดรูปภาพใหญ่เกินไป ลองเปลี่ยนใช้ไฟล์รูปขนาดเล็กดูนะครับ");
-      }
-    };
-
-    if (imageInput && imageInput.files && imageInput.files[0]) {
-      const file = imageInput.files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const img = new Image();
-        img.src = reader.result;
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          const MAX_WIDTH = 400; 
-          let width = img.width;
-          let height = img.height;
-
-          if (width > MAX_WIDTH) {
-            height *= MAX_WIDTH / width;
-            width = MAX_WIDTH;
-          }
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, width, height);
-          const compressedBase64 = canvas.toDataURL("image/jpeg", 0.6);
-          processSave(compressedBase64);
-        };
+      const productWithId = {
+        id: "prod_" + Date.now(),
+        productId: "prod_" + Date.now(), 
+        name: newProduct.title,
+        productName: newProduct.title,
+        title: newProduct.title,
+        brand: newProduct.brand || "General Brand",
+        price: Number(newProduct.price) || 0,
+        discountPrice: newProduct.salePrice ? Number(newProduct.salePrice) : null,
+        salePrice: newProduct.salePrice ? Number(newProduct.salePrice) : null,
+        stock: Number(newProduct.stock) || 0,
+        image: finalImageSrc,
+        images: [finalImageSrc],
+        imageUrl: finalImageSrc,
+        categoryId: newProduct.category,
+        category: newProduct.category,
+        description: newProduct.description || "",
+        createdAt: new Date().toISOString()
       };
-      reader.readAsDataURL(file);
-    } else {
-      processSave("");
+
+      // ทำการส่งบันทึกไปยังเซิร์ฟเวอร์หรือ LocalStorage ผ่าน service
+      addProduct(productWithId);
+      alert(`🎉 เพิ่มสินค้า "${newProduct.title}" เข้าหน้าร้านเรียบร้อยแล้ว!`);
+
+      // เคลียร์ค่าในฟอร์มหลังจากกดส่งเรียบร้อย
+      setNewProduct({
+        title: "", 
+        brand: "",
+        price: "", 
+        salePrice: "",
+        stock: "",
+        category: "Cosmetic Collection", 
+        description: "",
+        image: "" 
+      });
+
+      // จัดการรีเซ็ตปุ่มเลือกไฟล์ใน HTML
+      const fileInputs = document.querySelectorAll('input[type="file"]');
+      fileInputs.forEach(input => {
+        input.value = "";
+      });
+
+    } catch (err) {
+      console.error(err);
+      alert("❌ ไม่สามารถบันทึกสินค้าได้ หรือขนาดไฟล์ภาพใหญ่เกินความจุของระบบ");
     }
   };
 
   const renderContent = () => {
+    const safeProfileData = profileData || { username: "", fullName: "", email: "" };
+
     switch (activeTab) {
       case "profile":
         return (
@@ -195,7 +224,7 @@ const ProfilePage = () => {
             </S.HeaderSection>
             <S.FormContainer>
               <ProfileForm 
-                profileData={profileData} 
+                profileData={safeProfileData} 
                 handleChange={handleChange} 
                 handleSubmit={handleSubmit} 
               />
@@ -324,12 +353,13 @@ const ProfilePage = () => {
     }
   };
 
+  // เช็คเรื่องล็อกอินก่อนการส่งออก JSX เสมอ
   if (!isLoggedIn) return null;
 
   return (
     <S.ProfileWrapper>
       <ProfileSidebar 
-        username={profileData.username} 
+        username={profileData?.username || "ผู้ใช้งาน"} 
         avatar={avatar} 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 

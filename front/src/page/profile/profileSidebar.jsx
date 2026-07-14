@@ -3,13 +3,25 @@ import * as S from './profileStyles';
 
 export default function ProfileSidebar({ username, avatar, activeTab, setActiveTab }) {
   
-  // 🎨 ฟังก์ชันคำนวณดีไซน์ปุ่มเมนูให้สวยงามเหมือนสไตล์เดิมของคุณ แต่กดติดแน่นอน 100%
+  // 🚪 ฟังก์ชันเมื่อกด "ออกจากระบบ"
+  const handleLogout = () => {
+    // 1. ล้างข้อมูล Session / Token ทั้งหมดที่เก็บในเครื่อง
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // 2. ส่งตัวผู้ใช้กลับไปยังหน้าล็อกอิน (ปรับ path ตรง '/login' ได้ตามที่พี่ตั้งค่าไว้เลยครับ)
+    window.location.href = '/login'; 
+  };
+
+  // 🎨 ปรับฟังก์ชันคำนวณดีไซน์สีปุ่มใหม่ ให้ชัดเจนบนพื้นหลังสว่าง/ชมพูพาสเทล
   const getButtonStyle = (tabName) => ({
     width: '100%',
     textAlign: 'left',
     padding: '14px 16px',
-    background: activeTab === tabName ? 'rgba(219, 39, 119, 0.15)' : 'transparent',
-    color: activeTab === tabName ? '#db2777' : '#ffffff',
+    /* 🔄 ตอนเลือก: ใช้ชมพูอ่อนพาสเทล | ตอนไม่เลือก: โปร่งแสง */
+    background: activeTab === tabName ? '#ffe4e6' : 'transparent',
+    /* 🔄 ตอนเลือก: สีชมพูเข้ม #db2777 | ตอนไม่เลือก: สีเทาเข้มสะดุดตา #4b5563 */
+    color: activeTab === tabName ? '#db2777' : '#4b5563',
     border: 'none',
     borderRadius: '12px',
     cursor: 'pointer',
@@ -20,7 +32,8 @@ export default function ProfileSidebar({ username, avatar, activeTab, setActiveT
     gap: '10px',
     transition: 'all 0.2s ease',
     outline: 'none',
-    fontWeight: activeTab === tabName ? '600' : '400',
+    /* 🔄 ตอนเลือก: ตัวหนา 700 | ตอนไม่เลือก: หนาปานกลาง 600 ให้อ่านง่าย */
+    fontWeight: activeTab === tabName ? '700' : '600',
   });
 
   return (
@@ -46,7 +59,7 @@ export default function ProfileSidebar({ username, avatar, activeTab, setActiveT
         </div>
       </S.UserSection>
 
-      {/* เปลี่ยนมาใช้ div ครอบปุ่มตรง ๆ เพื่อเลี่ยงบั๊กจาก Styled Component ชั้นนอก */}
+      {/* แถบเมนูด้านซ้าย */}
       <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column' }}>
         
         <button style={getButtonStyle('profile')} onClick={() => setActiveTab('profile')}>
@@ -61,13 +74,42 @@ export default function ProfileSidebar({ username, avatar, activeTab, setActiveT
           📦 การซื้อของฉัน
         </button>
 
-        {/* 🌟 ย้ายมาอยู่ตรงนี้แล้วครับ: ล่างการซื้อของฉัน */}
         <button style={getButtonStyle('manage_products')} onClick={() => setActiveTab('manage_products')}>
           🛠️ จัดการสินค้า
         </button>
         
         <button style={getButtonStyle('shipping')} onClick={() => setActiveTab('shipping')}>
           🚚 ดูการจัดส่งสินค้า
+        </button>
+
+        {/* 🛑 เส้นคั่นกลางบาง ๆ ให้สไตล์ดูเป็นระเบียบขึ้น */}
+        <hr style={{ border: 'none', borderTop: '1px solid #ffe4e6', margin: '12px 0' }} />
+
+        {/* 🚪 ปุ่มออกจากระบบแบบใหม่ สีแดงมีระดับคัดแยกชัดเจน */}
+        <button 
+          onClick={handleLogout}
+          style={{
+            width: '100%',
+            textAlign: 'left',
+            padding: '14px 16px',
+            background: 'transparent',
+            color: '#ef4444', // สีส้มแดงเด่นชัดเจน
+            border: 'none',
+            borderRadius: '12px',
+            cursor: 'pointer',
+            fontSize: '15px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            transition: 'all 0.2s ease',
+            outline: 'none',
+            fontWeight: '600'
+          }}
+          // ทำเอฟเฟกต์โฮเวอร์ให้เปลี่ยนเป็นสีแดงพาสเทลจาง ๆ เวลาเมาส์ชี้
+          onMouseEnter={(e) => e.target.style.background = '#fef2f2'}
+          onMouseLeave={(e) => e.target.style.background = 'transparent'}
+        >
+          🚪 ออกจากระบบ
         </button>
 
       </div>

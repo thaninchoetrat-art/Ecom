@@ -4,12 +4,16 @@ import * as S from './profileStyles';
 export default function ProfileForm({ profileData, handleChange, handleSubmit }) {
   return (
     <S.InputsBlock onSubmit={handleSubmit}>
-      {/* 1. ชื่อผู้ใช้ (ดึงจากระบบ แก้ไขไม่ได้) */}
+      {/* 1. ชื่อผู้ใช้ (ปรับปรุง: เปลี่ยนเป็นกล่อง Input ให้พิมพ์เขียนหรือแก้ไขเองได้แล้วครับ) */}
       <S.FormGroup>
         <S.Label>ชื่อผู้ใช้</S.Label>
-        <span style={{ color: '#fff', fontSize: '16px', paddingLeft: '10px' }}>
-          {profileData.username}
-        </span>
+        <S.InputField
+          type="text"
+          name="username"
+          value={profileData.username || ''}
+          onChange={handleChange}
+          placeholder="กรอกชื่อผู้ใช้ของคุณ (เช่น nawamin)"
+        />
       </S.FormGroup>
 
       {/* 2. ชื่อ-นามสกุล */}
@@ -24,7 +28,7 @@ export default function ProfileForm({ profileData, handleChange, handleSubmit })
         />
       </S.FormGroup>
 
-      {/* 3. อีเมล (เปิดให้พิมพ์แก้ไขได้จริง และเซฟลงเครื่องได้) */}
+      {/* 3. อีเมล */}
       <S.FormGroup>
         <S.Label>อีเมล</S.Label>
         <S.InputField
@@ -52,7 +56,7 @@ export default function ProfileForm({ profileData, handleChange, handleSubmit })
       {/* 5. เพศ */}
       <S.FormGroup>
         <S.Label>เพศ</S.Label>
-        <div style={{ display: 'flex', gap: '20px', color: '#fff', paddingTop: '5px' }}>
+        <S.RadioGroup style={{ paddingTop: '5px' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
             <input
               type="radio"
@@ -83,19 +87,19 @@ export default function ProfileForm({ profileData, handleChange, handleSubmit })
             />
             อื่นๆ
           </label>
-        </div>
+        </S.RadioGroup>
       </S.FormGroup>
 
       {/* 6. วัน/เดือน/ปี เกิด */}
       <S.FormGroup>
         <S.Label>วัน/เดือน/ปี เกิด</S.Label>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '450px' }}>
           {/* วัน */}
           <select
             name="birthDay"
             value={profileData.birthDay || ''}
             onChange={handleChange}
-            style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '10px', borderRadius: '8px', flex: 1, outline: 'none' }}
+            style={{ background: '#ffffff', color: '#111827', border: '1px solid #ffd1d7', padding: '10px', borderRadius: '12px', flex: 1, outline: 'none', fontWeight: '500' }}
           >
             <option value="">วันที่</option>
             {[...Array(31)].map((_, i) => (
@@ -108,7 +112,7 @@ export default function ProfileForm({ profileData, handleChange, handleSubmit })
             name="birthMonth"
             value={profileData.birthMonth || ''}
             onChange={handleChange}
-            style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '10px', borderRadius: '8px', flex: 1, outline: 'none' }}
+            style={{ background: '#ffffff', color: '#111827', border: '1px solid #ffd1d7', padding: '10px', borderRadius: '12px', flex: 1, outline: 'none', fontWeight: '500' }}
           >
             <option value="">เดือน</option>
             {['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'].map((month, idx) => (
@@ -121,11 +125,12 @@ export default function ProfileForm({ profileData, handleChange, handleSubmit })
             name="birthYear"
             value={profileData.birthYear || ''}
             onChange={handleChange}
-            style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333', padding: '10px', borderRadius: '8px', flex: 1, outline: 'none' }}
+            style={{ background: '#ffffff', color: '#111827', border: '1px solid #ffd1d7', padding: '10px', borderRadius: '12px', flex: 1, outline: 'none', fontWeight: '500' }}
           >
             <option value="">ปี</option>
             {[...Array(80)].map((_, i) => {
-              const year = new Date().getFullYear() + 543 - i; // แสดงเป็น ปี พ.ศ.
+              // ดึงปีปัจจุบัน พ.ศ. คีย์เวิร์ดอ้างอิงจากโค้ดเดิม
+              const year = new Date().getFullYear() + 543 - i;
               return <option key={year} value={year}>{year}</option>;
             })}
           </select>

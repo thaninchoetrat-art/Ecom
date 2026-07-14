@@ -7,7 +7,7 @@ export const PageWrapper = styled.div`
   align-items: center;     /* จัดกึ่งกลางแนวตั้ง */
   min-height: 100vh;       /* ความสูงเต็มหน้าจอ */
   width: 100vw;            /* ความกว้างเต็มหน้าจอ */
-  background-color: #121212; /* สีพื้นหลังโทนดาร์กตามรูปของคุณ */
+  background-color: #f0e9e9; /* สีพื้นหลังโทนดาร์กตามรูปของคุณ */
   box-sizing: border-box;
   margin: 0;
   padding: 20px;

@@ -2,7 +2,7 @@ import React from "react";
 import * as Components from './Components';
 import { useNavigate } from "react-router-dom";
 
-function App() {
+function Login() { // เปลี่ยนชื่อ function เป็น Login ให้ตรงกับชื่อไฟล์
     const navigate = useNavigate();
     const [signIn, toggle] = React.useState(true);
 
@@ -52,7 +52,7 @@ function App() {
         }
     };
 
-    const handleSignInSubmit = async (e) => {
+   const handleSignInSubmit = async (e) => {
         e.preventDefault();
         try {
             const response = await fetch(`${BACKEND_URL}/login`, {
@@ -63,14 +63,30 @@ function App() {
             const data = await response.json();
 
             if (data.ok) {
+                // 1. กำหนดค่า Role พื้นฐานจาก Backend
+                let finalRole = data.user.role;
+
+                // 2. 🌟 บังคับตั้งค่า Role เป็น 'admin' สำหรับอีเมลนี้โดยเฉพาะ (กรณีทำงานบน Local)
+                if (signInData.email === "admin@gmail.com") {
+                    finalRole = "admin";
+                }
+
+                // 3. บันทึกข้อมูลลง LocalStorage
                 localStorage.setItem("user_token", data.token);
                 localStorage.setItem("is_logged_in", "true");
                 localStorage.setItem("local_user_name", data.user.name);
+                localStorage.setItem("user_role", finalRole); // ใช้ค่าที่บังคับไว้ (ถ้ามี)
 
                 alert(`เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับคุณ ${data.user.name}`);
-                
-                // แก้ไขจุดที่ 2: เปลี่ยนหน้าไปที่หน้า /admin ตามโครงสร้าง Route ใน App.jsx
-                navigate("/admin");
+
+                // 4. ตรวจสอบ Role เพื่อเปลี่ยนหน้า
+                if (finalRole === "admin") {
+                    navigate("/admin");
+                } else if (finalRole === "staff") {
+                    navigate("/staff");
+                } else {
+                    navigate("/");
+                }
             } else {
                 alert(data.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง");
             }
@@ -98,7 +114,6 @@ function App() {
                 <Components.Form onSubmit={handleSignInSubmit}>
                     <Components.Title>Sign in</Components.Title>
                     <Components.Input type='email' placeholder='Email' name='email' value={signInData.email} onChange={handleSignInChange} />
-                    {/* แก้ไขจุดที่ 1: เปลี่ยน value จาก signInData.signInData เป็น signInData.password */}
                     <Components.Input type='password' placeholder='Password' name='password' value={signInData.password} onChange={handleSignInChange} />
                     <Components.Anchor href='#'>Forgot your password?</Components.Anchor>
                     <Components.Button type="submit">Sign In</Components.Button>
@@ -122,4 +137,4 @@ function App() {
     );
 }
 
-export default App;
+export default Login;
