@@ -36,3 +36,25 @@ export function writeJsonFile(fileName, data) {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
   return filePath;
 }
+
+/* ===== ฟังก์ชันสำหรับ Checkout ===== */
+
+export function getAllCheckoutOrders() {
+  return readJsonFile('checkout_orders', []);
+}
+
+export function saveAllCheckoutOrders(orders) {
+  writeJsonFile('checkout_orders', orders);
+}
+
+/* ===== ฟังก์ชันสำหรับบัญชีผู้ใช้ (users) — ย้ายมาจาก Firebase ===== */
+// เก็บเป็น object คีย์ = อีเมลที่เข้ารหัส (แทน '.' ด้วย ',') เหมือนโครงสร้างเดิมใน Firebase
+// เพื่อให้ authController.js แก้โค้ดน้อยที่สุด
+
+export function getAllUsers() {
+  return readJsonFile('users', {});
+}
+
+export function saveAllUsers(users) {
+  writeJsonFile('users', users);
+}

@@ -11,6 +11,20 @@ export const isCompanyProduct = (p) => (p.source || PRODUCT_SOURCE.COMPANY) === 
 export const fetchProducts = () => JSON.parse(localStorage.getItem(KEYS.PRODUCTS) || "[]");
 export const saveProducts = (data) => localStorage.setItem(KEYS.PRODUCTS, JSON.stringify(data));
 
+// 🟢 อัปโหลดไฟล์รูปสินค้าขึ้นเซิร์ฟเวอร์ (แทนการวางลิงก์รูปเอง) — คืนค่า URL ของรูปที่อัปโหลดแล้ว
+export const uploadProductImage = async (file) => {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const res = await fetch("http://localhost:4000/api/products", {
+    method: "POST",
+    body: formData,
+  });
+  const data = await res.json();
+  if (!res.ok || !data.imageUrl) throw new Error(data.message || "อัปโหลดรูปภาพไม่สำเร็จ");
+  return data.imageUrl;
+};
+
 export const addProduct = (product) => {
   const products = fetchProducts();
   const newProduct = {

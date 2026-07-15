@@ -14,6 +14,7 @@ import AdminDashboard from "./page/admin/AdminDashboard";
 import ProductsManage from "./page/admin/ProductsManage";
 import MembersManage from "./page/admin/MembersManage";
 import AdminProfile from "./page/admin/Profile"; // 🟢 หน้าโปรไฟล์ของ Admin เอง
+import BackupManage from "./page/admin/BackupManage"; // 🟢 หน้าสำรองข้อมูล
 
 import StaffLayout from "./page/staff/StaffLayout";
 import StaffOrdersManage from "./page/staff/OrdersManage";
@@ -131,6 +132,7 @@ function App() {
         <Route index element={<AdminDashboard />} />
         <Route path="products" element={<ProductsManage />} />
         <Route path="members" element={<MembersManage />} />
+        <Route path="backup" element={<BackupManage />} />
         <Route path="profile" element={<AdminProfile />} />
       </Route>
 

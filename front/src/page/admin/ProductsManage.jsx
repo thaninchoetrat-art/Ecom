@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
 import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiImage } from "react-icons/fi";
 import Modal from "./components/Modal";
-import { fetchProducts, addProduct, updateProduct, deleteProduct, fetchCategories } from "../products/productService";
+import { fetchProducts, addProduct, updateProduct, deleteProduct, fetchCategories, uploadProductImage } from "../products/productService";
 
 const EMPTY_FORM = { productName: "", categoryId: "", brand: "", price: "", discountPrice: "", stock: "", image: "", description: "" };
 const currency = (n) => `฿${Number(n || 0).toLocaleString("th-TH")}`;
@@ -16,6 +16,7 @@ const ProductsManage = () => {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const loadData = () => {
     setProducts(fetchProducts());
@@ -61,6 +62,28 @@ const ProductsManage = () => {
     deleteProduct(p.productId);
     loadData();
     Swal.fire({ icon: "success", title: "ลบสินค้าแล้ว", confirmButtonColor: "#ec4899", timer: 1200, showConfirmButton: false });
+  };
+
+  const handleImageFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      Swal.fire({ icon: "warning", title: "กรุณาเลือกไฟล์รูปภาพเท่านั้น", confirmButtonColor: "#ec4899" });
+      e.target.value = "";
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const imageUrl = await uploadProductImage(file);
+      setForm((f) => ({ ...f, image: imageUrl }));
+    } catch (err) {
+      Swal.fire({ icon: "error", title: "อัปโหลดรูปไม่สำเร็จ", text: err.message, confirmButtonColor: "#ec4899" });
+    } finally {
+      setUploadingImage(false);
+      e.target.value = "";
+    }
   };
 
   const handleSubmit = (e) => {
@@ -225,13 +248,28 @@ const ProductsManage = () => {
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold text-gray-500">ลิงก์รูปภาพ</label>
-            <input
-              value={form.image}
-              onChange={(e) => setForm({ ...form, image: e.target.value })}
-              placeholder="https://..."
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
-            />
+            <label className="mb-1 block text-xs font-semibold text-gray-500">รูปภาพสินค้า</label>
+            <div className="flex items-center gap-4">
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+                {form.image ? (
+                  <img src={form.image} alt="ตัวอย่างรูปสินค้า" className="h-full w-full object-cover" />
+                ) : (
+                  <FiImage className="text-gray-300" size={22} />
+                )}
+              </div>
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageFile}
+                  disabled={uploadingImage}
+                  className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-pink-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-pink-600 hover:file:bg-pink-100 disabled:opacity-60"
+                />
+                <p className="mt-1 text-xs text-gray-400">
+                  {uploadingImage ? "กำลังอัปโหลดรูป..." : "รองรับไฟล์ JPG, PNG"}
+                </p>
+              </div>
+            </div>
           </div>
           <div>
             <label className="mb-1 block text-xs font-semibold text-gray-500">รายละเอียดสินค้า</label>
@@ -252,7 +290,7 @@ const ProductsManage = () => {
             </button>
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || uploadingImage}
               className="rounded-xl bg-pink-500 px-5 py-2 text-sm font-semibold text-white shadow-sm shadow-pink-200 hover:bg-pink-600 disabled:opacity-60"
             >
               {saving ? "กำลังบันทึก..." : editingId ? "บันทึกการแก้ไข" : "เพิ่มสินค้า"}

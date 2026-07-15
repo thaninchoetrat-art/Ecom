@@ -3,6 +3,7 @@ import {
   FiGrid,
   FiBox,
   FiUsers,
+  FiDatabase,
   FiChevronsLeft,
   FiChevronsRight,
   FiArrowLeft,
@@ -12,6 +13,7 @@ const NAV_ITEMS = [
   { to: "/admin", label: "แดชบอร์ด", icon: FiGrid, end: true },
   { to: "/admin/products", label: "จัดการสินค้า", icon: FiBox },
   { to: "/admin/members", label: "จัดการสมาชิก / บัญชี", icon: FiUsers },
+  { to: "/admin/backup", label: "สำรองข้อมูล", icon: FiDatabase },
 ];
 
 const AdminSidebar = ({ collapsed, onToggle, mobileOpen, onCloseMobile }) => {
