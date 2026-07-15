@@ -11,18 +11,18 @@ import { useState, useContext, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
 import { CartContext } from "../../page/cart/CartContext";
 import { logout } from "../../services/meService";
+import { useNavigate } from "react-router-dom";
 
 const menus = [
   { name: "หน้าแรก", path: "/" }, 
-  { name: "หมวดหมู่สินค้า", path: "/shop" },
-  { name: "แบรนด์ทั้งหมด", path: "/brands" },
-  { name: "สินค้าใหม่", path: "/new" },
-  { name: "คอลเลคชั่นพิเศษ", path: "/collection" },
-  { name: "โปรโมชั่นออนไลน์", path: "/promotion" },
-  { name: "ร้านคาร์มาร์ท", path: "/stores" },
+ 
+  { name: "แบรนด์ทั้งหมด", path: "/Brand" },
+  { name: "เกี่ยวกับเรา", path: "/About" },
+
 ];
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { totalItems } = useContext(CartContext) || { totalItems: 0 };
   const [bounce, setBounce] = useState(false);
@@ -47,18 +47,23 @@ export default function Navbar() {
     userRole === "Admin" ? "/admin" : userRole === "Staff" ? "/staff" : "/profile";
 
   const handleLogout = async () => {
-    const result = await Swal.fire({
-      icon: "question",
-      title: "ออกจากระบบ?",
-      text: "คุณต้องการออกจากระบบใช่หรือไม่",
-      showCancelButton: true,
-      confirmButtonText: "ออกจากระบบ",
-      cancelButtonText: "ยกเลิก",
-      confirmButtonColor: "#ef4444",
-      cancelButtonColor: "#9ca3af",
-    });
-    if (result.isConfirmed) logout();
-  };
+  const result = await Swal.fire({
+    icon: "question",
+    title: "ออกจากระบบ?",
+    text: "คุณต้องการออกจากระบบใช่หรือไม่",
+    showCancelButton: true,
+    confirmButtonText: "ออกจากระบบ",
+    cancelButtonText: "ยกเลิก",
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#9ca3af",
+  });
+
+  if (!result.isConfirmed) return;
+
+  await logout();
+
+  navigate("/", { replace: true });
+};
 
   return (
     /* 🟢 ใช้ Breakout Hack: w-screen ml-[calc(50%-50vw)] max-w-none ทะลวงกล่องออกไปติดขอบจอ */
@@ -96,37 +101,48 @@ export default function Navbar() {
 
         {/* ปุ่มฝั่งขวา (Search, ตะกร้า, โปรไฟล์) */}
         <div className="flex items-center gap-6">
-          <button className="rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
-            <FiSearch />
-          </button>
+         
 
-          <Link to="/cart">
-            <button className="relative rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
-              <FiShoppingCart />
-              {totalItems > 0 && (
-                <span
-                  className={`absolute -top-2 -right-3 h-5 min-w-[20px] rounded-full bg-pink-600 px-1 text-white text-[11px] flex items-center justify-center transition-transform duration-300 ${
-                    bounce ? "scale-125" : "scale-100"
-                  }`}
-                >
-                  {totalItems > 99 ? "99+" : totalItems}
-                </span>
-              )}
-            </button>
-          </Link>
+          {isLoggedIn && (
+  <Link to="/cart">
+    <button className="relative rounded-full border cursor-pointer border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
+      <FiShoppingCart />
 
-          <Link to={profilePath}>
-            <button className="rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
-              <FiUser />
-            </button>
-          </Link>
+      {totalItems > 0 && (
+        <span
+          className={`absolute -top-2 -right-3 h-5 min-w-[20px] rounded-full bg-pink-600 px-1 text-white text-[11px] flex items-center justify-center transition-transform duration-300 ${
+            bounce ? "scale-125" : "scale-100"
+          }`}
+        >
+          {totalItems > 99 ? "99+" : totalItems}
+        </span>
+      )}
+    </button>
+  </Link>
+)}
+
+         {isLoggedIn ? (
+            // Loginแสดง icon user
+            <Link to={profilePath}>
+              <button className="rounded-full border cursor-pointer border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
+                <FiUser />
+              </button>
+            </Link>
+          ) : (
+            // ยังไม่ได้ Login แสดง ไอค่อน
+            <Link to="/login">
+              <button className="rounded-full border cursor-pointer border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
+                Login
+              </button>
+            </Link>
+          )}
 
           {/* 🟢 ปุ่มออกจากระบบ: แสดงเฉพาะตอน login อยู่ */}
           {isLoggedIn && (
             <button
               onClick={handleLogout}
               title="ออกจากระบบ"
-              className="rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-red-200 hover:text-red-600"
+              className="rounded-full border cursor-pointer border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-red-200 hover:text-red-600"
             >
               <FiLogOut />
             </button>

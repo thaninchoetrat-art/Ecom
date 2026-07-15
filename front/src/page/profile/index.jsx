@@ -65,7 +65,7 @@ const ProfilePage = () => {
     price: "",
     salePrice: "",
     stock: "",
-    category: "Cosmetic Collection",
+    category: "",
     description: "",
     image: "" 
   });
@@ -177,8 +177,8 @@ const ProfilePage = () => {
         image: finalImageSrc,
         images: [finalImageSrc],
         imageUrl: finalImageSrc,
-        categoryId: newProduct.category,
-        category: newProduct.category,
+        categoryId: newProduct.categoryId,
+          category: newProduct.category,
         description: newProduct.description || "",
         createdAt: new Date().toISOString()
       };
@@ -194,7 +194,8 @@ const ProfilePage = () => {
         price: "", 
         salePrice: "",
         stock: "",
-        category: "Cosmetic Collection", 
+        categoryId: "",
+        category: "",
         description: "",
         image: "" 
       });

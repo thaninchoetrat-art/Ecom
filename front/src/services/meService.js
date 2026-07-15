@@ -26,5 +26,5 @@ export const logout = () => {
   localStorage.removeItem("is_logged_in");
   localStorage.removeItem("local_user_name");
   localStorage.removeItem("user_role");
-  window.location.href = "/login";
+ 
 };

@@ -1,31 +1,53 @@
-// 📄 แก้ไขไฟล์: src/components/banner/CategoryBanner.jsx
-const CategoryBanner = () => {
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+
+const banners = [
+  {
+    image: "https://img.salehere.co.th/p/1200x0/2022/03/12/h1nvcldy6xk1.jpg",
+    title: "ความงามไม่เคยรอใคร",
+    subtitle: "พบกับสินค้าเครื่องสำอางใหม่",
+  },
+  {
+    image: "https://www.siamcenter.co.th/public/upload/posts-15-best-beauty-gifts-for-mom-2020-08-06-122438-r.jpg",
+    title: "ลดกระหนำ่ Summer Sale",
+    subtitle: "ลดสูงสุด 50%",
+  },
+  {
+    image: "https://img.salehere.co.th/p/1200x0/2024/02/20/xgnqeqrcqm3v.jpg",
+    title: "New Brand ",
+    subtitle: "เครื่องสำอางมาใหม่",
+  },
+];
+
+export default function CategoryBanner() {
   return (
-    <section
-      // 🟢 ปรับปรุงให้ยืดเต็มจอแบบสมบูรณ์และลบมุมโค้งออกเพื่อให้ภาพแผ่ชนขอบจออย่างโปรแกรมเมอร์มืออาชีพ
-      className="relative h-72 w-full overflow-hidden"
-      style={{
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1600')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }}
-    >
-      <div className="absolute inset-0 bg-black/35" />
-
-      <div className="relative flex h-full items-center justify-center">
-        <div className="text-center text-white">
-          <h1 className="text-5xl font-bold tracking-wide">
-            Cosmetic Collection
-          </h1>
-
-          <p className="mt-3 text-lg opacity-90">
-            Beauty Starts Here
-          </p>
-        </div>
-      </div>
+    <section className="w-full h-64 px-4 overflow-hidden">
+      <Swiper
+        modules={[Autoplay, Pagination]}
+        autoplay={{ delay: 3000, disableOnInteraction: false }}
+        loop={true}
+        pagination={{ clickable: true }}
+        className="h-full"
+      >
+        {banners.map((banner, index) => (
+          <SwiperSlide key={index}>
+            <div
+              className="relative h-full bg-cover bg-center rounded-3xl overflow-hidden"
+              style={{ backgroundImage: `url(${banner.image})` }}
+            >
+              <div className="absolute inset-0 bg-black/40"></div>
+              <div className="relative flex h-full items-center justify-start px-12">
+                <div className="text-left text-white">
+                  <h1 className="text-4xl font-bold">{banner.title}</h1>
+                  <p className="mt-3 text-lg">{banner.subtitle}</p>
+                </div>
+              </div>
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
     </section>
   );
-};
-
-export default CategoryBanner;
+}

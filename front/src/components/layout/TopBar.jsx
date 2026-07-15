@@ -5,15 +5,7 @@ const TopBar = () => {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
         <span>✨ ส่งฟรีเมื่อสั่งซื้อครบ 499 บาท</span>
 
-        <div className="flex items-center gap-6">
-          <button className="hover:text-pink-100">
-            ติดต่อเรา
-          </button>
-
-          <button className="hover:text-pink-100">
-            ติดตามสินค้า
-          </button>
-        </div>
+       
       </div>
     </div>
   );
