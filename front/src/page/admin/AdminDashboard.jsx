@@ -30,7 +30,8 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
-    setStats(computeDashboardStats());
+    // 🟢 computeDashboardStats ตอนนี้เป็น async (ต้อง await fetchOrders() จริง) จึงต้อง .then แทนการเรียกตรงๆ
+    computeDashboardStats().then(setStats);
   }, []);
 
   const maxMonthly = useMemo(() => {
@@ -107,7 +108,7 @@ const AdminDashboard = () => {
         <div className="rounded-2xl border border-gray-100 bg-white !p-6 shadow-sm xl:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-base font-bold text-gray-900">คำสั่งซื้อล่าสุด</h3>
-            <Link to="/admin/orders" className="flex items-center gap-1 text-xs font-semibold text-pink-500 hover:text-pink-600">
+            <Link to="/staff/orders" className="flex items-center gap-1 text-xs font-semibold text-pink-500 hover:text-pink-600">
               ดูทั้งหมด <FiArrowUpRight size={14} />
             </Link>
           </div>
@@ -143,7 +144,7 @@ const AdminDashboard = () => {
             <h3 className="flex items-center gap-2 text-base font-bold text-gray-900">
               <FiAlertTriangle className="text-amber-500" /> สินค้าใกล้หมด
             </h3>
-            <Link to="/admin/inventory" className="text-xs font-semibold text-pink-500 hover:text-pink-600">จัดการ</Link>
+            <Link to="/staff/inventory" className="text-xs font-semibold text-pink-500 hover:text-pink-600">จัดการ</Link>
           </div>
           <div className="flex flex-col gap-3">
             {stats.lowStockProducts.length === 0 && <p className="text-sm text-gray-400">สต็อกสินค้าอยู่ในระดับปกติ</p>}

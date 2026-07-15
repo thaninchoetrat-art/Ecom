@@ -3,14 +3,20 @@ const KEYS = { PRODUCTS: 'my_products', CATEGORIES: 'my_categories', MEMBERS: 'm
 // =======================
 // จัดการข้อมูลสินค้า (Products)
 // =======================
+// 🟢 source แยกว่าสินค้านี้เป็นของบริษัทเอง ('company' — เพิ่มโดย Admin/Staff)
+// หรือของลูกค้าที่ลงขายเอง ('customer') สินค้าเก่าที่ไม่มีค่านี้ให้ถือว่าเป็นของบริษัท (backward compatible)
+export const PRODUCT_SOURCE = { COMPANY: 'company', CUSTOMER: 'customer' };
+export const isCompanyProduct = (p) => (p.source || PRODUCT_SOURCE.COMPANY) === PRODUCT_SOURCE.COMPANY;
+
 export const fetchProducts = () => JSON.parse(localStorage.getItem(KEYS.PRODUCTS) || "[]");
 export const saveProducts = (data) => localStorage.setItem(KEYS.PRODUCTS, JSON.stringify(data));
 
 export const addProduct = (product) => {
   const products = fetchProducts();
-  const newProduct = { 
-    ...product, 
-    productId: product.productId || `PROD-${Date.now()}` // สร้าง ID อัตโนมัติถ้าไม่มี
+  const newProduct = {
+    ...product,
+    productId: product.productId || `PROD-${Date.now()}`, // สร้าง ID อัตโนมัติถ้าไม่มี
+    source: product.source || PRODUCT_SOURCE.COMPANY,
   };
   saveProducts([newProduct, ...products]);
   return newProduct;

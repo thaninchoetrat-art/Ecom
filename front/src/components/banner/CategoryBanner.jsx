@@ -1,22 +1,25 @@
+// 📄 แก้ไขไฟล์: src/components/banner/CategoryBanner.jsx
 const CategoryBanner = () => {
   return (
     <section
-      // ใส่ rounded-2xl เพื่อให้มุมโค้งมนสวยงามตามภาพดีไซน์เดิม
-      className="relative h-72 overflow-hidden  bg-cover bg-center"
+      // 🟢 ปรับปรุงให้ยืดเต็มจอแบบสมบูรณ์และลบมุมโค้งออกเพื่อให้ภาพแผ่ชนขอบจออย่างโปรแกรมเมอร์มืออาชีพ
+      className="relative h-72 w-full overflow-hidden"
       style={{
         backgroundImage:
           "url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1600')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
       }}
     >
       <div className="absolute inset-0 bg-black/35" />
 
       <div className="relative flex h-full items-center justify-center">
         <div className="text-center text-white">
-          <h1 className="text-5xl font-bold">
+          <h1 className="text-5xl font-bold tracking-wide">
             Cosmetic Collection
           </h1>
 
-          <p className="mt-3 text-lg">
+          <p className="mt-3 text-lg opacity-90">
             Beauty Starts Here
           </p>
         </div>

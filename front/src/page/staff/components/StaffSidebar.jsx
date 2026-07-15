@@ -1,20 +1,20 @@
 import { NavLink } from "react-router-dom";
 import {
-  FiGrid,
-  FiBox,
-  FiUsers,
+  FiShoppingCart,
+  FiArchive,
+  FiTruck,
   FiChevronsLeft,
   FiChevronsRight,
   FiArrowLeft,
 } from "react-icons/fi";
 
 const NAV_ITEMS = [
-  { to: "/admin", label: "แดชบอร์ด", icon: FiGrid, end: true },
-  { to: "/admin/products", label: "จัดการสินค้า", icon: FiBox },
-  { to: "/admin/members", label: "จัดการสมาชิก / บัญชี", icon: FiUsers },
+  { to: "/staff", label: "ตรวจสอบคำสั่งซื้อ", icon: FiShoppingCart, end: true },
+  { to: "/staff/inventory", label: "จัดการสต๊อกสินค้า", icon: FiArchive },
+  { to: "/staff/shipping", label: "จัดการการจัดส่ง", icon: FiTruck },
 ];
 
-const AdminSidebar = ({ collapsed, onToggle, mobileOpen, onCloseMobile }) => {
+const StaffSidebar = ({ collapsed, onToggle, mobileOpen, onCloseMobile }) => {
   return (
     <>
       {/* Overlay สำหรับมือถือ */}
@@ -38,7 +38,7 @@ const AdminSidebar = ({ collapsed, onToggle, mobileOpen, onCloseMobile }) => {
             </div>
             {!collapsed && (
               <span className="truncate text-base font-bold text-gray-900 tracking-wide">
-                5 Paul <span className="text-pink-500">Admin</span>
+                5 Paul <span className="text-pink-500">Staff</span>
               </span>
             )}
           </div>
@@ -50,11 +50,11 @@ const AdminSidebar = ({ collapsed, onToggle, mobileOpen, onCloseMobile }) => {
           </button>
         </div>
 
-        {/* รายการเมนูจัดการหลัก */}
+        {/* รายการเมนูหลักของพนักงาน */}
         <nav className="flex-1 space-y-1.5 overflow-y-auto !px-3 !py-5">
           {!collapsed && (
             <p className="!px-3 !pb-1 text-[11px] font-bold uppercase tracking-wider text-gray-400/80">
-              เมนูจัดการร้านค้า
+              เมนูปฏิบัติงาน
             </p>
           )}
           {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
@@ -99,4 +99,4 @@ const AdminSidebar = ({ collapsed, onToggle, mobileOpen, onCloseMobile }) => {
   );
 };
 
-export default AdminSidebar;
+export default StaffSidebar;

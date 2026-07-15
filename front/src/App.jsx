@@ -7,80 +7,148 @@ import SearchBox from "./components/layout/SearchBox";
 import Footer from "./components/layout/Footer";  
 import Login from "./page/Login/login";  
 import ProfilePage from "./page/profile"; 
-import AdminLayout from "./page/admin/AdminLayout"; 
-import AdminDashboard from "./page/admin/AdminDashboard"; 
-import ProductsManage from "./page/admin/ProductsManage"; 
-import OrdersManage from "./page/admin/OrdersManage"; 
-import MembersManage from "./page/admin/MembersManage"; 
-import InventoryManage from "./page/admin/InventoryManage"; 
-import ShippingManage from "./page/admin/ShippingManage"; 
+import RequireRole from "./components/auth/RequireRole";
 
-// 🛒 1. Import หน้าตะกร้าสินค้า (Cart) เข้ามา
-import Cart from "./page/cart"; 
+import AdminLayout from "./page/admin/AdminLayout";
+import AdminDashboard from "./page/admin/AdminDashboard";
+import ProductsManage from "./page/admin/ProductsManage";
+import MembersManage from "./page/admin/MembersManage";
+import AdminProfile from "./page/admin/Profile"; // 🟢 หน้าโปรไฟล์ของ Admin เอง
+
+import StaffLayout from "./page/staff/StaffLayout";
+import StaffOrdersManage from "./page/staff/OrdersManage";
+import StaffInventoryManage from "./page/staff/InventoryManage";
+import StaffShippingManage from "./page/staff/ShippingManage";
+import StaffProfile from "./page/staff/Profile"; // 🟢 หน้าโปรไฟล์ของ Staff เอง
+
+import Cart from "./page/cart";
+import Checkout from "./page/checkout";
+import OrderSuccess from "./page/checkout/OrderSuccess";
+
+// 🟢 1. สร้าง UserLayout เพื่อคุมให้ Navbar และ Footer กาง 100% เสมอ
+const UserLayout = ({ children }) => {
+  return (
+    <div className="min-h-screen w-full flex flex-col bg-white">
+      {/* Navbar และ TopBar อยู่ด้านบน กางสุดขอบจอ */}
+      <div className="w-full block">
+        <Navbar />
+        <TopBar />
+      </div>
+      
+      {/* เนื้อหาแต่ละหน้าจะมาแทรกตรงกลาง */}
+      <div className="w-full grow block">
+        {children}
+      </div>
+      
+      {/* Footer อยู่ด้านล่าง กางสุดขอบจอ */}
+      <div className="w-full mt-auto block">
+        <Footer />
+      </div>
+    </div>
+  );
+};
 
 function App() {   
   return (     
     <Routes>         
-      {/* (Home) */}         
+      {/* 🏠 หน้าแรก */}         
       <Route           
         path="/"           
         element={             
-          <>               
-            <Navbar />               
-            <TopBar />               
-            <br />               
+          <UserLayout>               
+            <br />
             <CategoryBanner />               
-            <main className="w-full px-[4%] md:px-[8%] lg:px-[11%] xl:px-[13%] py-8 flex flex-col gap-6">                 
-              <br />                 
+            {/* 🟢 2. เปลี่ยนคลาสตรง main เป็น max-w-7xl mx-auto เพื่อให้สวยงามเต็มจอ */}
+            <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">                 
+              <br />
               <SearchBox />                 
               <ProductPage />               
             </main>               
-            <Footer />             
-          </>           
+          </UserLayout>           
         }         
       />         
       
-      {/* (Login) */}         
+      {/* 🔐 หน้า Login (ไม่ต้องมี Navbar/Footer) */}         
       <Route path="/login" element={<Login />} />         
       
-      {/* (Profile) */}         
+      {/* 👤 หน้า Profile */}         
       <Route           
         path="/profile"           
         element={             
-          <>               
-            <Navbar />               
-            <main className="w-full px-[4%] md:px-[8%] lg:px-[11%] xl:px-[13%] py-8">                 
+          <UserLayout>               
+            <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">                 
               <ProfilePage />               
             </main>               
-            <Footer />             
-          </>           
+          </UserLayout>           
         }         
       />         
 
-      {/* 🛒 2. เพิ่ม Route สำหรับหน้าตะกร้าสินค้า (Cart) ตรงนี้ */}         
+      {/* 🛒 หน้า Cart */}         
       <Route           
         path="/cart"           
         element={             
-          <>               
-            <Navbar />               
-            <main className="w-full px-[4%] md:px-[8%] lg:px-[11%] xl:px-[13%] py-8">                 
+          <UserLayout>               
+            <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">                 
               <Cart />               
             </main>               
-            <Footer />             
-          </>           
+          </UserLayout>           
         }         
       />
       
-      {/* (Admin) */}         
-      <Route path="/admin" element={<AdminLayout />}>           
-        <Route index element={<AdminDashboard />} />           
-        <Route path="products" element={<ProductsManage />} />           
-        <Route path="orders" element={<OrdersManage />} />           
-        <Route path="members" element={<MembersManage />} />           
-        <Route path="inventory" element={<InventoryManage />} />           
-        <Route path="shipping" element={<ShippingManage />} />         
-      </Route>       
-    </Routes>   
+      {/* 🧾 หน้า Checkout (ชำระเงิน) */}
+      <Route
+        path="/checkout"
+        element={
+          <UserLayout>
+            <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <Checkout />
+            </main>
+          </UserLayout>
+        }
+      />
+
+      {/* 🎉 หน้า Order Success */}
+      <Route
+        path="/order-success/:orderId"
+        element={
+          <UserLayout>
+            <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <OrderSuccess />
+            </main>
+          </UserLayout>
+        }
+      />
+
+      {/* ⚙️ หน้า Admin (เฉพาะสิทธิ์ Admin) */}
+      <Route
+        path="/admin"
+        element={
+          <RequireRole roles={["Admin"]}>
+            <AdminLayout />
+          </RequireRole>
+        }
+      >
+        <Route index element={<AdminDashboard />} />
+        <Route path="products" element={<ProductsManage />} />
+        <Route path="members" element={<MembersManage />} />
+        <Route path="profile" element={<AdminProfile />} />
+      </Route>
+
+      {/* 🧑‍💼 หน้า Staff (สิทธิ์ Staff และ Admin เข้าได้) */}
+      <Route
+        path="/staff"
+        element={
+          <RequireRole roles={["Staff", "Admin"]}>
+            <StaffLayout />
+          </RequireRole>
+        }
+      >
+        <Route index element={<StaffOrdersManage />} />
+        <Route path="inventory" element={<StaffInventoryManage />} />
+        <Route path="shipping" element={<StaffShippingManage />} />
+        <Route path="profile" element={<StaffProfile />} />
+      </Route>
+    </Routes>
   ); 
 }
 

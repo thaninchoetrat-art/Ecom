@@ -7,7 +7,6 @@ const StatCard = ({ icon, label, value, trend, trendUp, tone = "pink" }) => {
   };
 
   return (
-    /* ปรับปรุง: เพิ่ม !p-6 บังคับกล่องข้อมูลไม่ให้ข้อความชิดขอบ */
     <div className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white !p-6 shadow-sm transition hover:shadow-md">
       <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${toneMap[tone]}`}>
         {icon}

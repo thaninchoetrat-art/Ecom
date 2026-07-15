@@ -5,6 +5,7 @@ import { FiSearch, FiEye, FiTrash2 } from "react-icons/fi";
 import Modal from "./components/Modal";
 import StatusBadge from "./components/StatusBadge";
 import { fetchOrders, deleteOrder, updateOrderStatus, ORDER_STATUS } from "./services/orderService";
+import { fetchProducts, isCompanyProduct } from "../products/productService";
 
 const currency = (n) => `฿${Number(n || 0).toLocaleString("th-TH")}`;
 
@@ -15,7 +16,18 @@ const OrdersManage = () => {
   const [selected, setSelected] = useState(null);
   const [noteInput, setNoteInput] = useState("");
 
-  const loadData = async () => setOrders(await fetchOrders());
+  const loadData = async () => {
+    const allOrders = await fetchOrders();
+    // 🟢 staff จัดการเฉพาะคำสั่งซื้อของสินค้าบริษัทเท่านั้น
+    // คำสั่งซื้อที่มีสินค้าซึ่งลูกค้าลงขายเอง (source: customer) จะไม่แสดงและยุ่งไม่ได้เลย
+    const customerProductIds = new Set(
+      fetchProducts().filter((p) => !isCompanyProduct(p)).map((p) => p.productId)
+    );
+    const companyOrders = allOrders.filter(
+      (o) => !(o.items || []).some((it) => customerProductIds.has(it.productId))
+    );
+    setOrders(companyOrders);
+  };
   useEffect(() => { loadData(); }, []);
 
   const filtered = useMemo(() => {
@@ -38,7 +50,7 @@ const OrdersManage = () => {
       confirmButtonColor: "#ef4444",
       cancelButtonColor: "#9ca3af",
     });
-    
+
     if (result.isConfirmed) {
       try {
         await deleteOrder(order.orderId); // 🟢 รอให้ Backend ลบข้อมูลสำเร็จก่อน
@@ -50,12 +62,16 @@ const OrdersManage = () => {
     }
   };
 
-  const handleUpdateStatus = (order, status) => {
-    const updated = updateOrderStatus(order.orderId, status, noteInput || `อัปเดตสถานะเป็น ${ORDER_STATUS[status]?.label}`);
-    setOrders((prev) => prev.map((o) => (o.orderId === order.orderId ? updated : o)));
-    setSelected(updated);
-    setNoteInput("");
-    Swal.fire({ icon: "success", title: "อัปเดตสถานะแล้ว", confirmButtonColor: "#ec4899", timer: 1200, showConfirmButton: false });
+  const handleUpdateStatus = async (order, status) => {
+    try {
+      const updated = await updateOrderStatus(order.orderId, status, noteInput || `อัปเดตสถานะเป็น ${ORDER_STATUS[status]?.label}`);
+      setOrders((prev) => prev.map((o) => (o.orderId === order.orderId ? updated : o)));
+      setSelected(updated);
+      setNoteInput("");
+      Swal.fire({ icon: "success", title: "อัปเดตสถานะแล้ว", confirmButtonColor: "#ec4899", timer: 1200, showConfirmButton: false });
+    } catch (error) {
+      Swal.fire({ icon: "error", title: "อัปเดตสถานะไม่สำเร็จ", text: error.message, confirmButtonColor: "#ec4899" });
+    }
   };
 
   return (
@@ -162,6 +178,8 @@ const OrdersManage = () => {
                       <div className="flex items-center gap-2">
                         <StatusBadge label={meta.label} color={meta.color} />
                         <span className="text-gray-400">{h.note}</span>
+                        {/* 🟢 แสดงชื่อคนที่กดอัปเดตสถานะนี้ (มาจากฟิลด์ updatedBy ที่ backend เพิ่งบันทึกให้) */}
+                        {h.updatedBy && <span className="font-medium text-pink-500">โดย {h.updatedBy}</span>}
                       </div>
                       <span className="text-gray-400">{dayjs(h.date).format("D MMM HH:mm")}</span>
                     </div>

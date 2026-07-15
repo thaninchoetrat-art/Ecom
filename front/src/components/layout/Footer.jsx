@@ -9,10 +9,11 @@ import {
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-[#fafafa] border-t border-gray-200 relative">
+    /* 🟢 ใช้ Breakout Hack กับ Footer ทะลวงพื้นหลังสีเทาออกไปสุดขอบจอ */
+    <footer className="w-screen ml-[calc(50%-50vw)] max-w-none bg-[#fafafa] border-t border-gray-200 relative">
 
+      {/* ส่วนเนื้อหาหลัก 4 คอลัมน์ภายใน จัดกึ่งกลาง */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-
         <div className="grid gap-12 lg:grid-cols-4">
 
           {/* Logo */}
@@ -84,7 +85,7 @@ export default function Footer() {
       </div>
 
       {/* แถบลิขสิทธิ์ด้านล่างสุด */}
-      <div className="border-t border-gray-200 bg-white">
+      <div className="w-full border-t border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col lg:flex-row justify-between items-center gap-4">
           <p className="text-sm text-gray-500">
             © 2026 KARMART. All Rights Reserved.

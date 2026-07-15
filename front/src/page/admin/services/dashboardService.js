@@ -1,6 +1,4 @@
-// dashboardService.js
-// รวบรวม/คำนวณข้อมูลสรุปสำหรับหน้าแดชบอร์ดผู้ดูแลระบบ
-
+// src/page/admin/services/dashboardService.js
 import { fetchProducts, fetchMembers } from "../../products/productService";
 import { fetchOrders } from "./orderService";
 import { getLowStockProducts } from "./inventoryService";
@@ -10,15 +8,23 @@ const MONTH_LABELS = [
   "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค.",
 ];
 
-export const computeDashboardStats = () => {
+// 🟢 เดิมฟังก์ชันนี้เป็น sync แต่ fetchOrders() ถูกแก้ให้ยิง API จริง (async) ไปแล้วก่อนหน้านี้
+// พอเรียกแบบ sync มันได้ Promise กลับมาแทนข้อมูลจริง แล้ว Array.isArray(Promise) เป็น false เสมอ
+// orders เลยถูกบังคับให้เป็น [] ตลอด ทำให้ยอดขาย/กราฟ/ทุกอย่างในแดชบอร์ดว่างเปล่าไปหมด
+// แก้โดยทำให้ฟังก์ชันนี้เป็น async แล้ว await fetchOrders() จริงๆ
+export const computeDashboardStats = async () => {
   const products = fetchProducts();
   const members = fetchMembers();
-  const orders = fetchOrders();
+
+  // ดึงข้อมูลคำสั่งซื้อ
+  const rawOrders = await fetchOrders();
+  // 🟢 ตรวจสอบให้มั่นใจว่าเป็น Array เสมอ ถ้าไม่ใช่ให้คืนค่าว่างเพื่อป้องกัน Error
+  const orders = Array.isArray(rawOrders) ? rawOrders : [];
 
   const validOrders = orders.filter((o) => o.status !== "cancelled");
   const totalRevenue = validOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
 
-  // ยอดขายรายเดือน (ปีปัจจุบัน)
+  // คำนวณรายเดือน
   const currentYear = new Date().getFullYear();
   const monthlySales = MONTH_LABELS.map((label, idx) => {
     const total = validOrders
@@ -36,7 +42,7 @@ export const computeDashboardStats = () => {
     return acc;
   }, {});
 
-  // สินค้าขายดี (นับจาก items ในคำสั่งซื้อที่ไม่ถูกยกเลิก)
+  // สินค้าขายดี
   const salesByProduct = {};
   validOrders.forEach((o) => {
     (o.items || []).forEach((it) => {
@@ -48,6 +54,7 @@ export const computeDashboardStats = () => {
       salesByProduct[key].revenue += (Number(it.price) || 0) * (Number(it.qty) || 0);
     });
   });
+  
   const topProducts = Object.values(salesByProduct)
     .sort((a, b) => b.qty - a.qty)
     .slice(0, 5);
@@ -55,8 +62,6 @@ export const computeDashboardStats = () => {
   const recentOrders = [...orders]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 5);
-
-  const lowStockProducts = getLowStockProducts();
 
   return {
     totalCustomers: members.length,
@@ -67,6 +72,6 @@ export const computeDashboardStats = () => {
     statusCounts,
     topProducts,
     recentOrders,
-    lowStockProducts,
+    lowStockProducts: getLowStockProducts(),
   };
 };

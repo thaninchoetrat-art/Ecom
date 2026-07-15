@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import { FiSearch, FiTruck, FiCheck } from "react-icons/fi";
 import Modal from "./components/Modal";
 import StatusBadge from "./components/StatusBadge";
-import { fetchOrders, updateOrderStatus, updateOrder, ORDER_STATUS, SHIPPING_STEPS } from "./services/orderService";
+import { fetchOrders, updateOrderStatus, ORDER_STATUS, SHIPPING_STEPS } from "./services/orderService";
 
 const currency = (n) => `฿${Number(n || 0).toLocaleString("th-TH")}`;
 
@@ -15,7 +15,7 @@ const ShippingManage = () => {
   const [carrier, setCarrier] = useState("");
   const [tracking, setTracking] = useState("");
 
-  const loadData = () => setOrders(fetchOrders());
+  const loadData = async () => setOrders(await fetchOrders());
   useEffect(() => { loadData(); }, []);
 
   const shippable = useMemo(() => {

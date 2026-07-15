@@ -1,4 +1,4 @@
-// src/page/admin/services/orderService.js
+// src/page/staff/services/orderService.js
 
 const BACKEND_URL = "http://localhost:4000/api/orders";
 
@@ -18,7 +18,7 @@ let cache = [];
 
 function normalizeOrder(o) {
   const addr = o.shippingAddress || {};
-  
+
   // 🟢 คำนวณความถูกต้องของรายการสินค้า
   const items = (o.items || []).map((it) => ({
     productId: it.productId,
@@ -52,6 +52,7 @@ function normalizeOrder(o) {
     statusHistory: o.statusHistory || [
       { status: o.status || "pending", note: "สร้างคำสั่งซื้อ", date: o.createdAt || new Date().toISOString() },
     ],
+    // 🟢 เดิมสองฟิลด์นี้หายไปตอน normalize ทำให้หน้าจัดการการจัดส่งอ่านค่าไม่ได้เลย
     carrier: o.carrier || "",
     trackingNumber: o.trackingNumber || "",
     lastUpdatedBy: o.lastUpdatedBy || "",
@@ -78,13 +79,13 @@ export const fetchOrders = async () => {
         groupedOrders[id] = { ...o, items: Array.isArray(o.items) ? [...o.items] : [] };
       } else {
         const existing = groupedOrders[id];
-        
+
         // 2. ถ้ารายการสินค้าถูกแยกบรรทัดมา เอามารวมกันในตะกร้าเดิม
         if (Array.isArray(o.items)) {
           existing.items.push(...o.items);
         }
-        
-        // 3. ผสานข้อมูลที่อยู่ (Shipping Address) 
+
+        // 3. ผสานข้อมูลที่อยู่ (Shipping Address)
         if (o.shippingAddress) {
           existing.shippingAddress = {
             ...(existing.shippingAddress || {}),
@@ -118,7 +119,7 @@ export const deleteOrder = async (orderId) => {
     const res = await fetch(`${BACKEND_URL}/${orderId}`, {
       method: 'DELETE',
     });
-    
+
     if (!res.ok) throw new Error("ลบข้อมูลใน Database ไม่สำเร็จ");
 
     // อัปเดต Cache ฝั่งหน้าจอเมื่อลบสำเร็จ
@@ -130,6 +131,9 @@ export const deleteOrder = async (orderId) => {
   }
 };
 
+// 🟢 เดิมฟังก์ชันนี้แก้แค่ตัวแปร cache ในหน่วยความจำเฉยๆ ไม่เคยยิงไปบันทึกที่ backend เลย
+// พอโหลดหน้าใหม่ (หรือ Admin ไปดูที่อื่น) สถานะจะกลับไปเป็นค่าดิบเหมือนเดิมทุกครั้ง
+// ตอนนี้แก้ให้เป็น async แล้วยิง PATCH ไปบันทึกจริงที่ backend ก่อน แล้วค่อยอัปเดต cache
 // 🟢 แนบชื่อผู้ทำรายการ (จาก localStorage ที่ตั้งไว้ตอน login) ไปด้วยทุกครั้ง เพื่อรู้ว่าใครเป็นคนอัปเดต
 export const updateOrderStatus = async (orderId, status, note = "", extra = {}) => {
   const updatedBy = localStorage.getItem("local_user_name") || "ไม่ระบุ";
