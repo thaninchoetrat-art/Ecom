@@ -1,0 +1,152 @@
+import { createContext, useState, useEffect, useMemo } from "react";
+
+export const CartContext = createContext(null);
+
+const STORAGE_KEY = 'cart_items';
+
+function loadInitialItems() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch (err) {
+    console.error('Failed to load cart from localStorage', err);
+    return [];
+  }
+}
+
+export function CartProvider({ children }) {
+  const [items, setItems] = useState(loadInitialItems);
+
+  // Persist cart to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    } catch (err) {
+      console.error('Failed to save cart to localStorage', err);
+    }
+  }, [items]);
+
+  // Add a product to the cart. If it already exists, increase its quantity.
+  const addItem = (product, quantity = 1) => {
+    const productId = product.productId || product._id || product.id;
+    const name = product.productName || product.title || product.name || 'ไม่มีชื่อสินค้า';
+    const price = parseFloat(
+      product.discountPrice || product.salePrice || product.price || 0
+    );
+    const image =
+      product.image ||
+      product.imageUrl ||
+      (product.images && product.images[0]) ||
+      '/placeholder.png';
+    // จำนวนสต็อกคงเหลือของสินค้า (ถ้าไม่มีข้อมูลจะถือว่าไม่จำกัด)
+    const stock =
+      product.stock !== undefined && product.stock !== null
+        ? Number(product.stock)
+        : null;
+
+    setItems((prev) => {
+      const existing = prev.find((item) => item.productId === productId);
+      if (existing) {
+        const maxQty = stock !== null ? stock : existing.stock;
+        const nextQty = existing.quantity + quantity;
+        return prev.map((item) =>
+          item.productId === productId
+            ? {
+                ...item,
+                stock: maxQty,
+                quantity:
+                  maxQty !== undefined && maxQty !== null
+                    ? Math.min(nextQty, maxQty)
+                    : nextQty,
+              }
+            : item
+        );
+      }
+      const initialQty =
+        stock !== null && stock !== undefined
+          ? Math.min(quantity, stock)
+          : quantity;
+      return [
+        ...prev,
+        { productId, name, price, image, quantity: initialQty, stock },
+      ];
+    });
+  };
+
+  // ตั้งจำนวนตรง ๆ (ใช้กับปุ่ม +/-) ลบสินค้าออกถ้าจำนวน <= 0 และไม่ให้เกินสต็อก
+  const updateQuantity = (productId, quantity) => {
+    setItems((prev) => {
+      if (quantity <= 0) {
+        return prev.filter((item) => item.productId !== productId);
+      }
+      return prev.map((item) => {
+        if (item.productId !== productId) return item;
+        const capped =
+          item.stock !== undefined && item.stock !== null
+            ? Math.min(quantity, item.stock)
+            : quantity;
+        return { ...item, quantity: capped };
+      });
+    });
+  };
+
+  // เพิ่มจำนวน 1 ชิ้น แต่ต้องไม่เกินจำนวนสต็อกที่มี
+  const increment = (productId) => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.productId !== productId) return item;
+        const atMax =
+          item.stock !== undefined &&
+          item.stock !== null &&
+          item.quantity >= item.stock;
+        if (atMax) return item;
+        return { ...item, quantity: item.quantity + 1 };
+      })
+    );
+  };
+
+  const decrement = (productId) => {
+    setItems((prev) =>
+      prev
+        .map((item) =>
+          item.productId === productId
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
+        )
+        .filter((item) => item.quantity > 0)
+    );
+  };
+
+  const removeItem = (productId) => {
+    setItems((prev) => prev.filter((item) => item.productId !== productId));
+  };
+
+  const clearCart = () => setItems([]);
+
+  const totalItems = useMemo(
+    () => items.reduce((sum, item) => sum + item.quantity, 0),
+    [items]
+  );
+
+  const totalPrice = useMemo(
+    () => items.reduce((sum, item) => sum + item.quantity * item.price, 0),
+    [items]
+  );
+
+  const value = {
+    items,
+    setItems,
+    addItem,
+    updateQuantity,
+    increment,
+    decrement,
+    removeItem,
+    clearCart,
+    totalItems,
+    totalPrice,
+  };
+
+  return (
+    <CartContext.Provider value={value}>{children}</CartContext.Provider>
+  );
+}

@@ -1,5 +1,11 @@
 import express from 'express';
-import {listProducts} from '../controllers/productController.js';
+import {
+  uploadProductImage,
+} from '../controllers/productController.js';
+import upload from '../middleware/upload.js';
+
 const router = express.Router();
-router.get('/', listProducts);
+
+router.post('/', upload.single('image'), uploadProductImage);
+
 export default router;
