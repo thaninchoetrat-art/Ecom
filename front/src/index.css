@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/* 🟢 ทลายกรอบ 1280px ค่าเริ่มต้นของ Vite ทิ้งทั้งหมด */
+#root {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: left !important;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-color: #ffffff;
+  font-family: "Noto Sans Thai", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+}
+
+ul {
+  list-style: none;
+}

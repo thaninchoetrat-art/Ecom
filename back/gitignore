@@ -1,0 +1,35 @@
+# Dependencies
+node_modules
+
+# Environment / secrets
+.env
+.env.local
+config/serviceAccountKey.json
+
+# Backups (มีข้อมูลผู้ใช้จริง ไม่ควรเข้า git)
+backups/
+
+# ข้อมูล local ที่มี password hash / PII ของผู้ใช้จริง ไม่ควรเข้า git
+# (data/products.json, data/categories.json ยังปล่อยให้ commit ได้ตามปกติ เพราะเป็นข้อมูลแคตตาล็อก)
+data/users.json
+data/checkout_orders.json
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
