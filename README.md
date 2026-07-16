@@ -308,7 +308,7 @@ Interactive Prototype ของระบบ (ออกแบบด้วย Figm
 
 # 17. UAT
 
-ทดสอบแบบ User Acceptance Testing (UAT) โดยอ้างอิง Persona ทั้ง 3 คนจากหัวข้อ 11 (Customer/คุณแพรวา, Staff/คุณมานะ, Admin/นายอภิสิทธิ์) เขียน Test Case จากฟังก์ชันจริงของระบบ ไม่ใช่ Persona สมมติ เอกสารฉบับเต็มอยู่ที่ `docs/UAT_TestCase_5Paul.docx`
+ทดสอบแบบ User Acceptance Testing (UAT)
 
 ## สรุปผลการทดสอบ
 
