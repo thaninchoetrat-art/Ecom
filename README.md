@@ -275,9 +275,6 @@ npm run dev
 ## เข้าสู่ระบบ / สมัครสมาชิก (Login)
 <img width="800" alt="Login" src="back/image/Login.png" />
 
-## หน้าลูกค้า (Customer)
-<img width="800" alt="Customer" src="back/image/Castomer.png" />
-
 ## ตะกร้าสินค้า (Cart)
 <img width="800" alt="Cart" src="back/image/Cart.png" />
 
@@ -289,6 +286,9 @@ npm run dev
 
 ## โปรไฟล์ผู้ใช้ (Profile)
 <img width="800" alt="Profile" src="back/image/Profire.png" />
+
+## หน้าลูกค้า (Customer)
+<img width="800" alt="Customer" src="back/image/Castomer.png" />
 
 ## แผงควบคุมพนักงาน (Staff)
 <img width="800" alt="Staff" src="back/image/Staff.png" />
