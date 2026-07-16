@@ -82,6 +82,7 @@ export default function ProfileProducts({ newProduct, handleProductChange, handl
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             <S.FormGroup>
               <S.Label>ราคาปกติ (บาท)</S.Label>
+<<<<<<< Updated upstream
               <S.InputField 
                 type="number" 
                 name="price" 
@@ -89,27 +90,39 @@ export default function ProfileProducts({ newProduct, handleProductChange, handl
                 onChange={handleProductChange} 
                 placeholder="590" 
                 required 
+=======
+              <S.InputField
+                type="number"
+                name="price"
+                min="0"
+                value={newProduct.price || ''}
+                onChange={handleProductChange}
+                placeholder="590"
+                required
+>>>>>>> Stashed changes
               />
             </S.FormGroup>
             <S.FormGroup>
               <S.Label>ราคาลดพิเศษ (บาท)</S.Label>
-              <S.InputField 
-                type="number" 
-                name="salePrice" 
-                value={newProduct.salePrice || ''} 
-                onChange={handleProductChange} 
-                placeholder="499" 
+              <S.InputField
+                type="number"
+                name="salePrice"
+                min="0"
+                value={newProduct.salePrice || ''}
+                onChange={handleProductChange}
+                placeholder="499"
               />
             </S.FormGroup>
             <S.FormGroup>
               <S.Label>จำนวนในสต็อก (ชิ้น)</S.Label>
-              <S.InputField 
-                type="number" 
-                name="stock" 
-                value={newProduct.stock || ''} 
-                onChange={handleProductChange} 
-                placeholder="100" 
-                required 
+              <S.InputField
+                type="number"
+                name="stock"
+                min="0"
+                value={newProduct.stock || ''}
+                onChange={handleProductChange}
+                placeholder="100"
+                required
               />
             </S.FormGroup>
           </div>

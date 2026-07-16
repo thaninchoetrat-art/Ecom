@@ -6,15 +6,7 @@ import { fileURLToPath } from 'url';
 import cron from 'node-cron';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
-import categoryRoutes from './routes/categoryRoutes.js';
-import inventoryRoutes from './routes/inventoryRoutes.js';
-import warehouseRoutes from './routes/warehouseRoutes.js';
-import cartRoutes from './routes/cartRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
-import couponRoutes from './routes/couponRoutes.js';
-import promotionRoutes from './routes/promotionRoutes.js';
-import shippingRoutes from './routes/shippingRoutes.js';
-import loyaltyRoutes from './routes/loyaltyRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
 import checkoutRoutes from './routes/checkoutRoutes.js';
 import backupRoutes from './routes/backupRoutes.js';
@@ -34,17 +26,19 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'image'))); 
 
 // สรุปเส้นทาง API
+// 🟢 เอา route ที่ไม่มีหน้าเว็บไหนเรียกใช้จริงออกแล้ว (categories/inventory/warehouses/cart/coupons/promotions/shipping/loyalty)
+// เหลือแค่ที่หน้า Admin/Staff/Customer เรียกใช้งานจริงตามที่ตรวจสอบแล้ว
 app.use('/api/auth', authRoutes);
+<<<<<<< Updated upstream
 app.use('/api/products', productRoutes);      
 app.use('/api/categories', categoryRoutes);  
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/warehouses', warehouseRoutes);
 app.use('/api/cart', cartRoutes);
+=======
+app.use('/api/products', productRoutes);
+>>>>>>> Stashed changes
 app.use('/api/orders', orderRoutes);
-app.use('/api/coupons', couponRoutes);
-app.use('/api/promotions', promotionRoutes);
-app.use('/api/shipping', shippingRoutes);
-app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/admin/backups', backupRoutes);
 

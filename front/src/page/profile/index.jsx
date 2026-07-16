@@ -154,10 +154,37 @@ const ProfilePage = () => {
   const handleProductSubmit = (e) => {
     e.preventDefault();
 
+<<<<<<< Updated upstream
     if (!newProduct.title.trim()) {
       alert("กรุณากรอกชื่อสินค้า");
       return;
     }
+=======
+    // 🟢 กันราคา/ราคาลด/จำนวนสต็อกติดลบ ก่อนบันทึกสินค้าลงหน้าร้าน
+    if (Number(newProduct.price) < 0) return alert("ราคาปกติต้องไม่ติดลบ");
+    if (newProduct.salePrice !== "" && Number(newProduct.salePrice) < 0) return alert("ราคาลดพิเศษต้องไม่ติดลบ");
+    if (Number(newProduct.stock) < 0) return alert("จำนวนในสต็อกต้องไม่ติดลบ");
+
+    const finalImageSrc = newProduct.image || "https://via.placeholder.com/240";
+    const productWithId = {
+      ...newProduct,
+      id: "prod_" + Date.now(),
+      // 🟢 เติม productName/categoryId ให้ตรงกับที่หน้าแอดมิน/หน้าร้านใช้อ่านค่า
+      // (เดิมมีแค่ title เฉยๆ ทำให้ตารางแอดมินและหน้าร้านแสดงชื่อสินค้าว่างเปล่า)
+      productName: newProduct.title,
+      categoryId: "2",
+      price: Number(newProduct.price) || 0,
+      image: finalImageSrc,
+      createdAt: new Date().toISOString(),
+      // 🟢 สินค้าที่ลูกค้าโพสต์เองจากหน้าโปรไฟล์ ให้ติดแท็กว่ามาจาก Customer
+      // (แยกจากสินค้าที่ Staff/Admin เพิ่มผ่านหน้าแอดมิน ซึ่ง default เป็น COMPANY)
+      source: PRODUCT_SOURCE.CUSTOMER,
+      // 🟢 เก็บว่าใครเป็นคนโพสต์ขายสินค้านี้ไว้ด้วย เพื่อให้หน้าจัดการคำสั่งซื้อของแอดมิน
+      // แสดงได้ว่าถ้ามีคนซื้อสินค้าชิ้นนี้ไป ซื้อจากสมาชิกคนไหน (ที่มาโพสต์ขาย)
+      sellerEmail: localStorage.getItem("local_user_email") || "",
+      sellerName: localStorage.getItem("local_user_name") || "",
+    };
+>>>>>>> Stashed changes
 
     try {
       // ดึงรูปภาพจากค่าดั้งเดิมในสเตท ถ้าไม่มีให้ใช้ placeholder

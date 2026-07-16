@@ -1,4 +1,16 @@
 // src/page/staff/services/orderService.js
+<<<<<<< Updated upstream
+=======
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - isStaffPlacedOrder() — บรรทัด 27
+// - paymentMethodLabel() — บรรทัด 37
+// - normalizeOrder() — บรรทัด 41
+// - items() — บรรทัด 45
+// - fetchOrders() — บรรทัด 96
+// - deleteOrder() — บรรทัด 149
+// - updateOrderStatus() — บรรทัด 170
+
+>>>>>>> Stashed changes
 
 const BACKEND_URL = "http://localhost:4000/api/orders";
 
@@ -14,6 +26,23 @@ export const ORDER_STATUS = {
 
 export const SHIPPING_STEPS = ["confirmed", "processing", "packed", "shipping", "delivered"];
 
+<<<<<<< Updated upstream
+=======
+// 🟢 แยกคำสั่งซื้อตามคนที่ทำรายการ: Staff/Admin ซื้อเอง VS Customer สั่งเอง
+// (ใช้แบบเดียวกับฝั่ง Admin เพื่อโชว์เป็นแท็บให้เลือกดู แทนการซ่อนออเดอร์ทิ้งไปเลย)
+export const isStaffPlacedOrder = (o) => o.placedByRole === "Staff" || o.placedByRole === "Admin";
+
+// 🟢 ชื่อวิธีชำระเงินภาษาไทย ใช้แสดงในหน้าคำสั่งซื้อของ Staff (ให้ตรงกับฝั่ง Admin/checkout)
+export const PAYMENT_METHOD_LABELS = {
+  cod: "เก็บเงินปลายทาง",
+  bank_transfer: "โอนเงินผ่านธนาคาร",
+  promptpay: "พร้อมเพย์ (PromptPay)",
+  card: "บัตรเครดิต / เดบิต",
+};
+
+export const paymentMethodLabel = (method) => PAYMENT_METHOD_LABELS[method] || method || "ไม่ระบุ";
+
+>>>>>>> Stashed changes
 let cache = [];
 
 function normalizeOrder(o) {
@@ -26,6 +55,11 @@ function normalizeOrder(o) {
     price: Number(it.price) || 0,
     qty: Number(it.quantity || it.qty) || 1,
     image: it.image,
+    // 🟢 ที่มาของสินค้า/ผู้ขาย: ถ้า source เป็น "customer" แปลว่าสินค้านี้เป็นของที่สมาชิกโพสต์ขายเอง
+    // (ไม่ใช่ของบริษัท) เลยต้องโชว์ว่ารายการนี้ซื้อมาจากใคร (ให้ตรงกับฝั่ง Admin)
+    source: it.source || "company",
+    sellerEmail: it.sellerEmail || "",
+    sellerName: it.sellerName || "",
   }));
 
   // 🟢 คำนวณยอดเงินใหม่ (เผื่อยอดรวมถูกแยกไปบรรทัดอื่นแล้วสูญหาย)
