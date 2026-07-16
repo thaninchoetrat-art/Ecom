@@ -287,15 +287,6 @@ npm run dev
 ## โปรไฟล์ผู้ใช้ (Profile)
 <img width="800" alt="Profile" src="back/image/Profire.png" />
 
-## หน้าลูกค้า (Customer)
-<img width="800" alt="Customer" src="back/image/Castomer.png" />
-
-## แผงควบคุมพนักงาน (Staff)
-<img width="800" alt="Staff" src="back/image/Staff.png" />
-
-## แผงควบคุมผู้ดูแลระบบ (Admin)
-<img width="800" alt="Admin" src="back/image/Admin.png" />
-
 ---
 
 # 16. Prototype
@@ -309,7 +300,14 @@ Interactive Prototype ของระบบ (ออกแบบด้วย Figm
 # 17. UAT
 
 ทดสอบแบบ User Acceptance Testing (UAT) โดยอ้างอิง Persona ทั้ง 3 คนจากหัวข้อ 11 (Customer/คุณแพรวา, Staff/คุณมานะ, Admin/นายอภิสิทธิ์) เขียน Test Case จากฟังก์ชันจริงของระบบ ไม่ใช่ Persona สมมติ เอกสารฉบับเต็มอยู่ที่ `docs/UAT_TestCase_5Paul.docx`
+## หน้าลูกค้า (Customer)
+<img width="800" alt="Customer" src="back/image/Castomer.png" />
 
+## แผงควบคุมพนักงาน (Staff)
+<img width="800" alt="Staff" src="back/image/Staff.png" />
+
+## แผงควบคุมผู้ดูแลระบบ (Admin)
+<img width="800" alt="Admin" src="back/image/Admin.png" />
 ## สรุปผลการทดสอบ
 
 | Persona | จำนวน Test Case | ผ่าน | ไม่ผ่าน |
