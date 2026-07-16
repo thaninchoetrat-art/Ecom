@@ -1,5 +1,14 @@
 // inventoryService.js
 // ระบบตรวจสอบและจัดการคลังสินค้า (Stock Movement) ด้วย Local Storage
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - uid() — บรรทัด 25
+// - readKey() — บรรทัด 27
+// - writeKey() — บรรทัด 37
+// - fetchInventoryLogs() — บรรทัด 42
+// - saveInventoryLogs() — บรรทัด 43
+// - adjustStock() — บรรทัด 47
+// - getLowStockProducts() — บรรทัด 79
+
 
 import { fetchProducts, updateProduct } from "../../products/productService";
 

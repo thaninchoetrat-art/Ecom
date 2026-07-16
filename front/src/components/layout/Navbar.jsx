@@ -6,23 +6,24 @@ import {
   FiMenu,
   FiX,
   FiLogOut,
+  FiSettings,
 } from "react-icons/fi";
 import { useState, useContext, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
 import { CartContext } from "../../page/cart/CartContext";
 import { logout } from "../../services/meService";
+import { useNavigate } from "react-router-dom";
 
 const menus = [
-  { name: "หน้าแรก", path: "/" }, 
-  { name: "หมวดหมู่สินค้า", path: "/shop" },
-  { name: "แบรนด์ทั้งหมด", path: "/brands" },
-  { name: "สินค้าใหม่", path: "/new" },
-  { name: "คอลเลคชั่นพิเศษ", path: "/collection" },
-  { name: "โปรโมชั่นออนไลน์", path: "/promotion" },
-  { name: "ร้านคาร์มาร์ท", path: "/stores" },
+  { name: "หน้าแรก", path: "/" },
+
+  { name: "แบรนด์ทั้งหมด", path: "/Brand" },
+  { name: "เกี่ยวกับเรา", path: "/About" },
+
 ];
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { totalItems } = useContext(CartContext) || { totalItems: 0 };
   const [bounce, setBounce] = useState(false);
@@ -38,32 +39,36 @@ export default function Navbar() {
     return () => clearTimeout(timer);
   }, [totalItems]);
 
-  // 🟢 เดิมปุ่มโปรไฟล์พาไปหน้า /profile (ของลูกค้า) เสมอ ไม่ว่าใคร login อยู่ก็ตาม
-  // ทำให้ Staff/Admin ที่หลงมาที่หน้าแรกแล้วกดโปรไฟล์ ดันไปเจอหน้าโปรไฟล์ลูกค้าซึ่งไม่ใช่ของตัวเอง
-  // ตอนนี้เช็ค role จาก localStorage แล้วพาไปหน้าของตัวเองแทน
+  // 🟢 ปุ่มโปรไฟล์พาไปหน้า /profile เสมอ ไม่ว่า role ไหนก็ตาม (เหมือน Customer)
+  // ถ้าเป็น Admin/Staff จะมีปุ่มแยกต่างหากใน Navbar นี้เลย ให้กดเข้า /admin หรือ /staff เอง
   const isLoggedIn = localStorage.getItem("is_logged_in") === "true";
   const userRole = localStorage.getItem("user_role");
-  const profilePath =
-    userRole === "Admin" ? "/admin" : userRole === "Staff" ? "/staff" : "/profile";
+  const profilePath = "/profile";
+  const managePath = userRole === "Admin" ? "/admin" : userRole === "Staff" ? "/staff" : null;
 
   const handleLogout = async () => {
-    const result = await Swal.fire({
-      icon: "question",
-      title: "ออกจากระบบ?",
-      text: "คุณต้องการออกจากระบบใช่หรือไม่",
-      showCancelButton: true,
-      confirmButtonText: "ออกจากระบบ",
-      cancelButtonText: "ยกเลิก",
-      confirmButtonColor: "#ef4444",
-      cancelButtonColor: "#9ca3af",
-    });
-    if (result.isConfirmed) logout();
-  };
+  const result = await Swal.fire({
+    icon: "question",
+    title: "ออกจากระบบ?",
+    text: "คุณต้องการออกจากระบบใช่หรือไม่",
+    showCancelButton: true,
+    confirmButtonText: "ออกจากระบบ",
+    cancelButtonText: "ยกเลิก",
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#9ca3af",
+  });
+
+  if (!result.isConfirmed) return;
+
+  await logout();
+
+  navigate("/", { replace: true });
+};
 
   return (
     /* 🟢 ใช้ Breakout Hack: w-screen ml-[calc(50%-50vw)] max-w-none ทะลวงกล่องออกไปติดขอบจอ */
     <header className="sticky top-0 z-50 w-screen ml-[calc(50%-50vw)] max-w-none border-b border-pink-100 bg-white/90 backdrop-blur-xl">
-      
+
       {/* ส่วนเนื้อหาภายในล็อกจัดกึ่งกลางสวยงามเท่าเดิม */}
       <div className="max-w-7xl mx-auto w-full h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
 
@@ -96,37 +101,61 @@ export default function Navbar() {
 
         {/* ปุ่มฝั่งขวา (Search, ตะกร้า, โปรไฟล์) */}
         <div className="flex items-center gap-6">
-          <button className="rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
-            <FiSearch />
-          </button>
 
-          <Link to="/cart">
-            <button className="relative rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
-              <FiShoppingCart />
-              {totalItems > 0 && (
-                <span
-                  className={`absolute -top-2 -right-3 h-5 min-w-[20px] rounded-full bg-pink-600 px-1 text-white text-[11px] flex items-center justify-center transition-transform duration-300 ${
-                    bounce ? "scale-125" : "scale-100"
-                  }`}
-                >
-                  {totalItems > 99 ? "99+" : totalItems}
-                </span>
-              )}
-            </button>
-          </Link>
 
-          <Link to={profilePath}>
-            <button className="rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
-              <FiUser />
-            </button>
-          </Link>
+          {isLoggedIn && (
+  <Link to="/cart">
+    <button className="relative rounded-full border cursor-pointer border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
+      <FiShoppingCart />
+
+      {totalItems > 0 && (
+        <span
+          className={`absolute -top-2 -right-3 h-5 min-w-[20px] rounded-full bg-pink-600 px-1 text-white text-[11px] flex items-center justify-center transition-transform duration-300 ${
+            bounce ? "scale-125" : "scale-100"
+          }`}
+        >
+          {totalItems > 99 ? "99+" : totalItems}
+        </span>
+      )}
+    </button>
+  </Link>
+)}
+
+          {/* 🟢 ปุ่มเข้าสู่ระบบจัดการ: แสดงเฉพาะ Admin/Staff ที่ login อยู่ */}
+          {isLoggedIn && managePath && (
+            <Link to={managePath}>
+              <button
+                title={userRole === "Admin" ? "เข้าสู่ระบบผู้ดูแลระบบ (Admin)" : "เข้าสู่ระบบพนักงาน (Staff)"}
+                className="flex items-center gap-1.5 rounded-full border cursor-pointer border-indigo-200 bg-indigo-50 px-3 py-2.5 text-sm font-semibold text-indigo-600 transition hover:bg-indigo-100"
+              >
+                <FiSettings />
+                <span className="hidden sm:inline">{userRole}</span>
+              </button>
+            </Link>
+          )}
+
+         {isLoggedIn ? (
+            // Loginแสดง icon user
+            <Link to={profilePath}>
+              <button className="rounded-full border cursor-pointer border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
+                <FiUser />
+              </button>
+            </Link>
+          ) : (
+            // ยังไม่ได้ Login แสดง ไอค่อน
+            <Link to="/login">
+              <button className="rounded-full border cursor-pointer border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:border-pink-200 hover:text-pink-600">
+                Login
+              </button>
+            </Link>
+          )}
 
           {/* 🟢 ปุ่มออกจากระบบ: แสดงเฉพาะตอน login อยู่ */}
           {isLoggedIn && (
             <button
               onClick={handleLogout}
               title="ออกจากระบบ"
-              className="rounded-full border border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-red-200 hover:text-red-600"
+              className="rounded-full border cursor-pointer border-gray-200 p-2.5 text-xl text-gray-600 transition hover:border-red-200 hover:text-red-600"
             >
               <FiLogOut />
             </button>

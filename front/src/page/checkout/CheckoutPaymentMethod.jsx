@@ -29,6 +29,19 @@ const METHODS = [
   },
 ];
 
+// เว้นวรรคหมายเลขบัตรทุก 4 หลัก เช่น 1234 5678 9012 3456
+function formatCardNumber(rawValue) {
+  const digits = rawValue.replace(/[^0-9]/g, "").slice(0, 16);
+  return digits.replace(/(.{4})(?=.)/g, "$1 ");
+}
+
+// พิมพ์แค่ตัวเลข MMYY แล้วใส่ "/" ให้อัตโนมัติ เช่น 0928 -> 09/28
+function formatExpiry(rawValue) {
+  const digits = rawValue.replace(/[^0-9]/g, "").slice(0, 4);
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+}
+
 export default function CheckoutPaymentMethod({
   selected,
   onSelect,
@@ -85,12 +98,11 @@ export default function CheckoutPaymentMethod({
       )}
 
       {selected === "promptpay" && (
-        <div className="mt-5 flex flex-col items-center gap-3 rounded-xl bg-gray-50 p-6">
-          <div className="flex h-40 w-40 items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-white">
-            <BsQrCode size={72} className="text-gray-400" />
-          </div>
-          <p className="text-xs text-gray-400">
-            สแกนเพื่อชำระผ่านพร้อมเพย์ (QR จำลองสำหรับการทดสอบระบบ)
+        <div className="mt-5 rounded-xl bg-gray-50 p-4 text-sm text-gray-600">
+          <p className="font-semibold text-gray-700">ชำระผ่านพร้อมเพย์</p>
+          <p className="mt-1 text-xs text-gray-400">
+            กด "ยืนยันสั่งซื้อ" ด้านล่าง ระบบจะแสดง QR Code ให้สแกนเพื่อชำระเงิน
+            (มีเวลาสแกน 10 นาที)
           </p>
         </div>
       )}
@@ -121,10 +133,11 @@ export default function CheckoutPaymentMethod({
               onChange={(e) =>
                 onCardInfoChange({
                   ...cardInfo,
-                  cardNumber: e.target.value.replace(/[^0-9]/g, "").slice(0, 16),
+                  cardNumber: formatCardNumber(e.target.value),
                 })
               }
               placeholder="XXXX XXXX XXXX XXXX"
+              maxLength={19}
               required
               className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm tracking-widest outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
             />
@@ -133,9 +146,11 @@ export default function CheckoutPaymentMethod({
             <label className="mb-1 block text-xs font-medium text-gray-600">วันหมดอายุ</label>
             <input
               type="text"
+              inputMode="numeric"
               value={cardInfo.expiry}
-              onChange={(e) => onCardInfoChange({ ...cardInfo, expiry: e.target.value })}
+              onChange={(e) => onCardInfoChange({ ...cardInfo, expiry: formatExpiry(e.target.value) })}
               placeholder="MM/YY"
+              maxLength={5}
               required
               className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
             />
@@ -155,7 +170,7 @@ export default function CheckoutPaymentMethod({
             />
           </div>
           <p className="text-xs text-gray-400 sm:col-span-2">
-            ระบบจำลองการชำระเงิน จะไม่มีการส่งหมายเลขบัตรแบบเต็มไปเก็บที่เซิร์ฟเวอร์
+            {/* ระบบจำลองการชำระเงิน จะไม่มีการส่งหมายเลขบัตรแบบเต็มไปเก็บที่เซิร์ฟเวอร์ */}
           </p>
         </div>
       )}

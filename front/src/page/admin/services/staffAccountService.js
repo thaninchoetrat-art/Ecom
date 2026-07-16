@@ -1,6 +1,13 @@
-// src/page/admin/services/staffAccountService.js
-// จัดการบัญชีผู้ใช้จริงทั้งหมด (Customer / Staff / Admin) — เฉพาะ Admin เท่านั้นที่เรียกได้
-// (ฝั่ง backend มี verifyToken + requireRole('Admin') กันไว้อีกชั้นเสมอ)
+// front/src/page/admin/services/staffAccountService.js
+// 🟢 ฟังก์ชันเรียก backend สำหรับหน้า MembersManage.jsx (ยิงไป /api/auth/accounts)
+// fetchAccounts, createAccount, updateAccount, deleteAccount — จัดการบัญชีทุกสิทธิ์
+// (ชื่อไฟล์เหมือนกับที่ StaffAccounts.jsx เคยใช้ แต่ฟังก์ชันในไฟล์นี้คนละชุดกัน)
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - authHeaders() — บรรทัด 14
+// - fetchAccounts() — บรรทัด 22
+// - createAccount() — บรรทัด 29
+// - updateAccount() — บรรทัด 40
+// - deleteAccount() — บรรทัด 51
 
 const BACKEND_URL = "http://localhost:4000/api/auth";
 

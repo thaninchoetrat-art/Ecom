@@ -1,3 +1,12 @@
+// front/src/page/admin/AdminDashboard.jsx
+// 🟢 หน้าแรกของ Admin (path: /admin) — แดชบอร์ดสรุปภาพรวมร้าน
+// ดึงสถิติจาก computeDashboardStats() (admin/services/dashboardService.js) มาแสดง:
+// ยอดขายรวม, จำนวนออเดอร์/สมาชิก/สินค้า, กราฟยอดขายรายเดือน, สัดส่วนสถานะออเดอร์,
+// ออเดอร์ล่าสุด, สินค้าใกล้หมดสต็อก, สินค้าขายดี
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - currency() — บรรทัด 26
+// - AdminDashboard() — บรรทัด 39
+
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -10,6 +19,7 @@ import {
 } from "react-icons/fi";
 import StatCard from "./components/StatCard";
 import StatusBadge from "./components/StatusBadge";
+import Modal from "./components/Modal";
 import { computeDashboardStats } from "./services/dashboardService";
 import { ORDER_STATUS } from "./services/orderService";
 
@@ -28,9 +38,9 @@ const COLOR_HEX = {
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
-
+  const [showAllOrders, setShowAllOrders] = useState(false);
+ //ดึงข้อมูล
   useEffect(() => {
-    // 🟢 computeDashboardStats ตอนนี้เป็น async (ต้อง await fetchOrders() จริง) จึงต้อง .then แทนการเรียกตรงๆ
     computeDashboardStats().then(setStats);
   }, []);
 
@@ -45,7 +55,6 @@ const AdminDashboard = () => {
   const totalStatusCount = statusEntries.reduce((s, [, c]) => s + c, 0) || 1;
 
   return (
-    /* ปรับปรุง: เพิ่ม !p-6 md:!p-8 !mx-auto !max-w-7xl ที่กล่องนอกสุดของแดชบอร์ด */
     <div className="flex w-full flex-col gap-6 !p-6 md:!p-8 !mx-auto !max-w-7xl">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard icon={<FiDollarSign size={20} />} label="ยอดขายรวม" value={currency(stats.totalRevenue)} tone="pink" />
@@ -108,9 +117,13 @@ const AdminDashboard = () => {
         <div className="rounded-2xl border border-gray-100 bg-white !p-6 shadow-sm xl:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-base font-bold text-gray-900">คำสั่งซื้อล่าสุด</h3>
-            <Link to="/staff/orders" className="flex items-center gap-1 text-xs font-semibold text-pink-500 hover:text-pink-600">
+            <button
+              type="button"
+              onClick={() => setShowAllOrders(true)}
+              className="flex items-center gap-1 text-xs font-semibold text-pink-500 hover:text-pink-600"
+            >
               ดูทั้งหมด <FiArrowUpRight size={14} />
-            </Link>
+            </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -144,7 +157,7 @@ const AdminDashboard = () => {
             <h3 className="flex items-center gap-2 text-base font-bold text-gray-900">
               <FiAlertTriangle className="text-amber-500" /> สินค้าใกล้หมด
             </h3>
-            <Link to="/staff/inventory" className="text-xs font-semibold text-pink-500 hover:text-pink-600">จัดการ</Link>
+            <Link to="/admin/inventory" className="text-xs font-semibold text-pink-500 hover:text-pink-600">จัดการ</Link>
           </div>
           <div className="flex flex-col gap-3">
             {stats.lowStockProducts.length === 0 && <p className="text-sm text-gray-400">สต็อกสินค้าอยู่ในระดับปกติ</p>}
@@ -173,6 +186,46 @@ const AdminDashboard = () => {
           ))}
         </div>
       </div>
+
+      <Modal
+        open={showAllOrders}
+        onClose={() => setShowAllOrders(false)}
+        title="คำสั่งซื้อทั้งหมด"
+        width="max-w-3xl"
+      >
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-100 text-left text-xs uppercase text-gray-400">
+                <th className="!pb-3 !pt-2 font-medium">รหัส</th>
+                <th className="!pb-3 !pt-2 font-medium">ลูกค้า</th>
+                <th className="!pb-3 !pt-2 font-medium">ยอดรวม</th>
+                <th className="!pb-3 !pt-2 font-medium">สถานะ</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {(stats.allOrders || []).length === 0 && (
+                <tr>
+                  <td colSpan={4} className="!py-6 text-center text-gray-400">
+                    ยังไม่มีคำสั่งซื้อ
+                  </td>
+                </tr>
+              )}
+              {(stats.allOrders || []).map((o) => {
+                const meta = ORDER_STATUS[o.status] || { label: o.status, color: "gray" };
+                return (
+                  <tr key={o.orderId} className="text-gray-700">
+                    <td className="!py-3.5 font-medium text-gray-900">{o.orderId}</td>
+                    <td className="!py-3.5">{o.customerName}</td>
+                    <td className="!py-3.5 font-semibold">{currency(o.total)}</td>
+                    <td className="!py-3.5"><StatusBadge label={meta.label} color={meta.color} /></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Modal>
     </div>
   );
 };

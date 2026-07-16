@@ -1,5 +1,10 @@
-// src/page/staff/Profile.jsx
-// 🟢 หน้าโปรไฟล์ของพนักงาน (Staff) เอง — เดิมกดที่มุมขวาบน (Topbar) แล้วไม่มีอะไรเกิดขึ้น
+// front/src/page/staff/Profile.jsx
+// 🟢 หน้าโปรไฟล์ของ Staff เอง (path: /staff/profile) — fetchMyProfile() + logout()
+// ทำงานเหมือน admin/Profile.jsx ทุกประการ ต่างกันแค่ข้อความ/สีป้ายแสดงสิทธิ์
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - StaffProfile() — บรรทัด 17
+// - handleLogout() — บรรทัด 35
+
 import { useEffect, useState } from "react";
 import { FiMail, FiPhone, FiShield, FiCalendar, FiLogOut, FiUser } from "react-icons/fi";
 import dayjs from "dayjs";

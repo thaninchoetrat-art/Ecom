@@ -2,16 +2,20 @@ import React from "react";
 
 const FIELDS = [
   { name: "receiverName", label: "ชื่อผู้รับ", placeholder: "ชื่อ-นามสกุล ผู้รับสินค้า" },
-  { name: "phone", label: "เบอร์โทรศัพท์", placeholder: "เบอร์โทรศัพท์ผู้รับสินค้า" },
+  { name: "phone", label: "เบอร์โทรศัพท์", placeholder: "เบอร์โทรศัพท์ผู้รับสินค้า", maxLength: 10, numeric: true },
   { name: "detail", label: "ที่อยู่ (บ้านเลขที่, ซอย, ถนน)", placeholder: "เช่น 123/45 ม.6 ซอยสุขุมวิท..." },
   { name: "province", label: "จังหวัด", placeholder: "กรอกจังหวัด" },
   { name: "district", label: "เขต / อำเภอ", placeholder: "กรอกเขตหรืออำเภอ" },
-  { name: "postalCode", label: "รหัสไปรษณีย์", placeholder: "กรอกรหัสไปรษณีย์ 5 หลัก", maxLength: 5 },
+  { name: "postalCode", label: "รหัสไปรษณีย์", placeholder: "กรอกรหัสไปรษณีย์ 5 หลัก", maxLength: 5, numeric: true },
 ];
 
 export default function CheckoutAddressForm({ address, onChange }) {
   const handleChange = (e) => {
-    onChange({ ...address, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    const field = FIELDS.find((f) => f.name === name);
+    const nextValue =
+      field?.numeric ? value.replace(/[^0-9]/g, "").slice(0, field.maxLength) : value;
+    onChange({ ...address, [name]: nextValue });
   };
 
   return (
@@ -29,6 +33,7 @@ export default function CheckoutAddressForm({ address, onChange }) {
             </label>
             <input
               type="text"
+              inputMode={field.numeric ? "numeric" : "text"}
               name={field.name}
               value={address[field.name] || ""}
               onChange={handleChange}

@@ -2,7 +2,7 @@ import React from "react";
 import * as Components from './Components';
 import { useNavigate } from "react-router-dom";
 
-function Login() { 
+function Login() {
     const navigate = useNavigate();
     const [signIn, toggle] = React.useState(true);
 
@@ -65,17 +65,19 @@ function Login() {
                 localStorage.setItem("user_token", data.token);
                 localStorage.setItem("is_logged_in", "true");
                 localStorage.setItem("local_user_name", data.user.name);
+                localStorage.setItem("local_user_email", data.user.email);
                 localStorage.setItem("user_role", role);
 
                 alert(`เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับคุณ ${data.user.name}`);
 
-                if (role === "Admin") {
-                    navigate("/admin");
-                } else if (role === "Staff") {
-                    navigate("/staff");
-                } else {
-                    navigate("/");
-                }
+                // 🟢 ให้ Admin/Staff เข้าหน้าเว็บปกติเหมือน Customer ก่อนเสมอ
+                // แล้วค่อยกดปุ่ม "เข้าสู่ระบบจัดการ" ที่หน้าโปรไฟล์เพื่อเข้าหน้า /admin หรือ /staff เอง
+                //
+                // 🟢 ใช้ full page reload (ไม่ใช้ navigate ของ react-router) โดยตั้งใจ
+                // เพราะ CartProvider ครอบอยู่นอกสุดของแอป (ดู main.jsx) และแยกตะกร้าเป็นรายบัญชี
+                // ตาม local_user_email — ต้องรีโหลดหน้าเว็บใหม่ทั้งหมดตะกร้าถึงจะสลับไปโหลด
+                // ตะกร้าของบัญชีที่เพิ่ง login เข้ามาแทนของคนก่อนหน้า (Admin/Staff/Customer ไม่ปนกัน)
+                window.location.href = "/";
             } else {
                 alert(data.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง");
             }

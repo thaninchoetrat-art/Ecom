@@ -33,11 +33,32 @@ export default function OrderSuccess() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId]);
 
+  // --- ส่วนที่เพิ่มเข้ามาสำหรับการบันทึกข้อมูลลง localStorage ---
+  useEffect(() => {
+    if (order) {
+      const existingOrders = JSON.parse(localStorage.getItem('myOrders')) || [];
+      // เช็คว่ามีออเดอร์นี้ใน list หรือยัง (เพื่อป้องกันการบันทึกซ้ำเวลา Refresh)
+      const isExist = existingOrders.find(o => o.orderId === order.orderId);
+      
+      if (!isExist) {
+        existingOrders.push(order);
+        localStorage.setItem('myOrders', JSON.stringify(existingOrders));
+      }
+    }
+  }, [order]);
+  // --------------------------------------------------------
+
   const handleConfirmPayment = async () => {
     setConfirming(true);
     try {
       const { order: updated } = await confirmPayment(orderId);
       setOrder(updated);
+      
+      // อัปเดตข้อมูลใน localStorage หลังจากยืนยันการชำระเงิน
+      const existingOrders = JSON.parse(localStorage.getItem('myOrders')) || [];
+      const updatedOrders = existingOrders.map(o => o.orderId === updated.orderId ? updated : o);
+      localStorage.setItem('myOrders', JSON.stringify(updatedOrders));
+      
     } catch (err) {
       setError(err.message || "ยืนยันการชำระเงินไม่สำเร็จ");
     } finally {

@@ -1,3 +1,9 @@
+// front/src/page/staff/StaffLayout.jsx
+// 🟢 โครงหน้าหลักของฝั่ง Staff ทั้งหมด (ใช้ครอบทุกหน้าใต้ path /staff/*)
+// ประกอบด้วย StaffSidebar + StaffTopbar + พื้นที่แสดงเนื้อหา (Outlet) เหมือน AdminLayout.jsx
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - StaffLayout() — บรรทัด 12
+
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import StaffSidebar from "./components/StaffSidebar";

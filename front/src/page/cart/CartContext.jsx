@@ -2,11 +2,18 @@ import { createContext, useState, useEffect, useMemo } from "react";
 
 export const CartContext = createContext(null);
 
-const STORAGE_KEY = 'cart_items';
+// 🟢 แยกตะกร้าเป็นรายบัญชี (อิงจากอีเมลที่ login อยู่) ไม่ให้ Admin/Staff/Customer
+// ที่ใช้เบราว์เซอร์เครื่องเดียวกันเห็นตะกร้าปนกัน — ถ้ายังไม่ login ใช้ตะกร้ากลาง "guest"
+// หมายเหตุ: การ login/logout ในแอปนี้ตั้งใจให้ทำ full page reload เสมอ (ดู login.jsx และ meService.js)
+// เพื่อให้ CartProvider (ซึ่งครอบอยู่นอกสุดที่ main.jsx) mount ใหม่และอ่านคีย์ตะกร้าของบัญชีล่าสุดถูกต้อง
+function getCartStorageKey() {
+  const email = localStorage.getItem('local_user_email');
+  return email ? `cart_items_${email}` : 'cart_items_guest';
+}
 
-function loadInitialItems() {
+function loadInitialItems(storageKey) {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(storageKey);
     return saved ? JSON.parse(saved) : [];
   } catch (err) {
     console.error('Failed to load cart from localStorage', err);
@@ -15,16 +22,18 @@ function loadInitialItems() {
 }
 
 export function CartProvider({ children }) {
-  const [items, setItems] = useState(loadInitialItems);
+  // 🟢 คำนวณคีย์ตะกร้าของบัญชีปัจจุบันครั้งเดียวตอน mount (จะ mount ใหม่ทุกครั้งที่ login/logout)
+  const [storageKey] = useState(getCartStorageKey);
+  const [items, setItems] = useState(() => loadInitialItems(storageKey));
 
   // Persist cart to localStorage whenever it changes
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      localStorage.setItem(storageKey, JSON.stringify(items));
     } catch (err) {
       console.error('Failed to save cart to localStorage', err);
     }
-  }, [items]);
+  }, [items, storageKey]);
 
   // Add a product to the cart. If it already exists, increase its quantity.
   const addItem = (product, quantity = 1) => {
@@ -43,6 +52,11 @@ export function CartProvider({ children }) {
       product.stock !== undefined && product.stock !== null
         ? Number(product.stock)
         : null;
+    // 🟢 เก็บที่มาของสินค้า/ผู้ขายไว้ในตะกร้าด้วย (เผื่อเป็นสินค้าที่ Customer โพสต์ขายเอง)
+    // เพื่อให้ตอน checkout ส่งข้อมูลนี้ต่อไปจนถึงหน้าจัดการคำสั่งซื้อของแอดมินได้ว่า "ซื้อจากใคร"
+    const source = product.source || "company";
+    const sellerEmail = product.sellerEmail || "";
+    const sellerName = product.sellerName || "";
 
     setItems((prev) => {
       const existing = prev.find((item) => item.productId === productId);
@@ -68,7 +82,7 @@ export function CartProvider({ children }) {
           : quantity;
       return [
         ...prev,
-        { productId, name, price, image, quantity: initialQty, stock },
+        { productId, name, price, image, quantity: initialQty, stock, source, sellerEmail, sellerName },
       ];
     });
   };

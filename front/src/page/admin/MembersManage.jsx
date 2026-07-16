@@ -1,3 +1,15 @@
+// front/src/page/admin/MembersManage.jsx
+// 🟢 หน้าจัดการสมาชิก (path: /admin/members) — จัดการบัญชีทุกสิทธิ์ (Customer/Staff/Admin)
+// ผ่าน backend จริง (admin/services/staffAccountService.js -> /api/auth/accounts)
+// ฟังก์ชันหลัก: fetchAccounts, createAccount, updateAccount, deleteAccount
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - MembersManage() — บรรทัด 31
+// - loadData() — บรรทัด 41
+// - openCreate() — บรรทัด 72
+// - openEdit() — บรรทัด 78
+// - handleDelete() — บรรทัด 84
+// - handleSubmit() — บรรทัด 105
+
 import { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
@@ -9,11 +21,18 @@ import { fetchAccounts, createAccount, updateAccount, deleteAccount } from "./se
 const EMPTY_FORM = { name: "", email: "", phone: "", role: "Customer", status: "active", password: "" };
 const ROLES = ["Customer", "Staff", "Admin"];
 
+const ROLE_TABS = [
+  { key: "all", label: "ทั้งหมด" },
+  { key: "Customer", label: "Customer" },
+  { key: "Staff", label: "Staff" },
+  { key: "Admin", label: "Admin" },
+];
+
 const MembersManage = () => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState("");
+  const [roleTab, setRoleTab] = useState("all");
   const [modalOpen, setModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingEmail, setEditingEmail] = useState(null); // null = สร้างใหม่, มีค่า = แก้ไข
@@ -33,13 +52,22 @@ const MembersManage = () => {
 
   useEffect(() => { loadData(); }, []);
 
+  const roleCounts = useMemo(() => {
+    const counts = { Customer: 0, Staff: 0, Admin: 0 };
+    members.forEach((m) => {
+      const role = m.role || "Customer";
+      if (counts[role] !== undefined) counts[role] += 1;
+    });
+    return counts;
+  }, [members]);
+
   const filtered = useMemo(() => {
     return members.filter((m) => {
       const matchSearch = !search || m.name?.toLowerCase().includes(search.toLowerCase()) || m.email?.toLowerCase().includes(search.toLowerCase());
-      const matchRole = !roleFilter || m.role === roleFilter;
-      return matchSearch && matchRole;
+      const matchRoleTab = roleTab === "all" || (m.role || "Customer") === roleTab;
+      return matchSearch && matchRoleTab;
     });
-  }, [members, search, roleFilter]);
+  }, [members, search, roleTab]);
 
   const openCreate = () => {
     setEditingEmail(null);
@@ -104,18 +132,33 @@ const MembersManage = () => {
   };
 
   return (
-    /* ปรับปรุง: เพิ่ม !p-6 md:!p-8 !mx-auto !max-w-7xl ที่กล่องนอกสุดของหน้าสมาชิก */
     <div className="flex w-full flex-col gap-6 !p-6 md:!p-8 !mx-auto !max-w-7xl">
+      <div className="flex flex-wrap gap-2 rounded-2xl border border-gray-100 bg-white !p-2 shadow-sm">
+        {ROLE_TABS.map((tab) => {
+          const count = tab.key === "all" ? members.length : roleCounts[tab.key] || 0;
+          const isActive = roleTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setRoleTab(tab.key)}
+              className={`flex items-center gap-2 rounded-xl !px-4 !py-2 text-sm font-semibold transition ${
+                isActive ? "bg-pink-500 text-white shadow-sm" : "text-gray-500 hover:bg-pink-50 hover:text-pink-600"
+              }`}
+            >
+              {tab.label}
+              <span className={`rounded-full !px-2 text-xs font-bold ${isActive ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"}`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white !p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-1 flex-col gap-3 sm:flex-row">
-          <div className="relative flex-1 sm:max-w-xs">
-            <FiSearch className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="ค้นหาชื่อ / อีเมล" className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2 !pl-10 pr-3 text-sm outline-none focus:border-pink-400 focus:bg-white focus:ring-2 focus:ring-pink-100" />
-          </div>
-          <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none">
-            <option value="">ทุกสิทธิ์การใช้งาน</option>
-            {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
-          </select>
+        <div className="relative flex-1 sm:max-w-xs">
+          <FiSearch className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="ค้นหาชื่อ / อีเมล" className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2 !pl-10 pr-3 text-sm outline-none focus:border-pink-400 focus:bg-white focus:ring-2 focus:ring-pink-100" />
         </div>
         <button onClick={openCreate} className="flex items-center justify-center gap-2 rounded-xl bg-pink-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-pink-600">
           <FiPlus size={16} /> เพิ่มสมาชิก
@@ -130,6 +173,7 @@ const MembersManage = () => {
                 <th className="!px-6 !py-4 font-medium">สมาชิก</th>
                 <th className="!px-6 !py-4 font-medium">เบอร์โทร</th>
                 <th className="!px-6 !py-4 font-medium">สิทธิ์การใช้งาน</th>
+                <th className="!px-6 !py-4 font-medium">ที่มาของบัญชี</th>
                 <th className="!px-6 !py-4 font-medium">สถานะ</th>
                 <th className="!px-6 !py-4 font-medium">วันที่สมัคร</th>
                 <th className="!px-6 !py-4 text-right font-medium">จัดการ</th>
@@ -149,6 +193,15 @@ const MembersManage = () => {
                   </td>
                   <td className="!px-6 !py-4">{m.phone || "-"}</td>
                   <td className="!px-6 !py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${m.role === "Admin" ? "bg-violet-50 text-violet-600" : m.role === "Staff" ? "bg-amber-50 text-amber-600" : "bg-blue-50 text-blue-600"}`}>{m.role || "Customer"}</span></td>
+                  <td className="!px-6 !py-4">
+                    {m.createdBy ? (
+                      <span className="text-xs text-gray-500" title={`เพิ่มโดย ${m.createdBy}`}>
+                        เพิ่มโดย {m.createdBy}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-500">สมัครเอง</span>
+                    )}
+                  </td>
                   <td className="!px-6 !py-4"><StatusBadge label={m.status === "active" ? "ใช้งานอยู่" : "ระงับการใช้งาน"} color={m.status === "active" ? "green" : "red"} /></td>
                   <td className="!px-6 !py-4 text-gray-500">{m.createdAt ? dayjs(m.createdAt).format("D MMM YYYY") : "-"}</td>
                   <td className="!px-6 !py-4">
@@ -161,12 +214,12 @@ const MembersManage = () => {
               ))}
               {!loading && filtered.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="!px-6 !py-10 text-center text-gray-400">ยังไม่มีสมาชิก</td>
+                  <td colSpan={7} className="!px-6 !py-10 text-center text-gray-400">ยังไม่มีสมาชิก</td>
                 </tr>
               )}
               {loading && (
                 <tr>
-                  <td colSpan={6} className="!px-6 !py-10 text-center text-gray-400">กำลังโหลด...</td>
+                  <td colSpan={7} className="!px-6 !py-10 text-center text-gray-400">กำลังโหลด...</td>
                 </tr>
               )}
             </tbody>
@@ -200,7 +253,9 @@ const MembersManage = () => {
             <label className="mb-1 block text-xs font-semibold text-gray-500">เบอร์โทร</label>
             <input
               value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })}
+              inputMode="numeric"
+              maxLength={10}
               className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
             />
           </div>

@@ -76,7 +76,7 @@ export default function Footer() {
               </div>
               <div className="flex gap-3 items-center">
                 <FiMail className="text-pink-600 flex-shrink-0" />
-                <span className="text-gray-600">support@karmart.com</span>
+                <span className="text-gray-600">support@spu.com</span>
               </div>
             </div>
           </div>
@@ -88,7 +88,7 @@ export default function Footer() {
       <div className="w-full border-t border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col lg:flex-row justify-between items-center gap-4">
           <p className="text-sm text-gray-500">
-            © 2026 KARMART. All Rights Reserved.
+            © 2026 T. All Rights Reserved.
           </p>
           <div className="flex gap-8 text-sm text-gray-500">
             <span className="hover:text-pink-600 cursor-pointer">Privacy Policy</span>

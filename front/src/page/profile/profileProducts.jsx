@@ -1,8 +1,10 @@
 import React from 'react';
 import * as S from './profileStyles';
+import { fetchCategories } from "../products/productService";
 
 export default function ProfileProducts({ newProduct, handleProductChange, handleProductSubmit }) {
-  
+  const categories = fetchCategories() || [];
+
   // 📸 ฟังก์ชันบีบอัดรูปภาพก่อนเก็บลง State เพื่อแก้ปัญหา localStorage เต็ม
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -35,8 +37,10 @@ export default function ProfileProducts({ newProduct, handleProductChange, handl
 
           // ส่งค่าที่บีบอัดแล้วกลับไปที่หน้าหลัก
           handleProductChange({
-            name: 'image',
-            value: compressedBase64
+            target: {
+              name: 'image',
+              value: compressedBase64
+            }
           });
         };
       };
@@ -51,7 +55,8 @@ export default function ProfileProducts({ newProduct, handleProductChange, handl
         <S.PageSubTitle>เพิ่มและอัปเดตข้อมูลสินค้าเครื่องสำอางเข้าสู่หน้าร้านของคุณ</S.PageSubTitle>
       </S.HeaderSection>
       <S.FormContainer>
-        <S.InputsBlock onSubmit={handleProductSubmit}>
+        {/* 🟢 แก้ไขตรงนี้: บังคับให้ InputsBlock ทำงานเป็นแท็ก HTML <form> เพื่อให้ปุ่ม Submit ทำงานได้ */}
+        <S.InputsBlock as="form" onSubmit={handleProductSubmit}>
           
           {/* แถวที่ 1: ชื่อสินค้า และ ชื่อแบรนด์ */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -60,7 +65,7 @@ export default function ProfileProducts({ newProduct, handleProductChange, handl
               <S.InputField 
                 type="text" 
                 name="title" 
-                value={newProduct.title} 
+                value={newProduct.title || ''} 
                 onChange={handleProductChange} 
                 placeholder="เช่น Matte Liquid Lipstick" 
                 required 
@@ -82,34 +87,37 @@ export default function ProfileProducts({ newProduct, handleProductChange, handl
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             <S.FormGroup>
               <S.Label>ราคาปกติ (บาท)</S.Label>
-              <S.InputField 
-                type="number" 
-                name="price" 
-                value={newProduct.price} 
-                onChange={handleProductChange} 
-                placeholder="590" 
-                required 
+              <S.InputField
+                type="number"
+                name="price"
+                min="0"
+                value={newProduct.price || ''}
+                onChange={handleProductChange}
+                placeholder="590"
+                required
               />
             </S.FormGroup>
             <S.FormGroup>
               <S.Label>ราคาลดพิเศษ (บาท)</S.Label>
-              <S.InputField 
-                type="number" 
-                name="salePrice" 
-                value={newProduct.salePrice || ''} 
-                onChange={handleProductChange} 
-                placeholder="499" 
+              <S.InputField
+                type="number"
+                name="salePrice"
+                min="0"
+                value={newProduct.salePrice || ''}
+                onChange={handleProductChange}
+                placeholder="499"
               />
             </S.FormGroup>
             <S.FormGroup>
               <S.Label>จำนวนในสต็อก (ชิ้น)</S.Label>
-              <S.InputField 
-                type="number" 
-                name="stock" 
-                value={newProduct.stock || ''} 
-                onChange={handleProductChange} 
-                placeholder="100" 
-                required 
+              <S.InputField
+                type="number"
+                name="stock"
+                min="0"
+                value={newProduct.stock || ''}
+                onChange={handleProductChange}
+                placeholder="100"
+                required
               />
             </S.FormGroup>
           </div>
@@ -119,14 +127,18 @@ export default function ProfileProducts({ newProduct, handleProductChange, handl
             <S.FormGroup>
               <S.Label>หมวดหมู่สินค้า</S.Label>
               <select 
-                name="category"
-                value={newProduct.category}
+                name="categoryId" 
+                value={newProduct.categoryId || ''}
                 onChange={handleProductChange}
                 style={{ background: '#ffffff', color: '#111827', border: '1px solid #ffd1d7', padding: '12px', borderRadius: '12px', outline: 'none', width: '100%', fontWeight: '500' }}
+                required
               >
-                <option value="Cosmetic Collection">Cosmetic Collection</option>
-                <option value="Skincare Collection">Skincare Collection</option>
-                <option value="Perfume Collection">Perfume Collection</option>
+                <option value="">-- เลือกหมวดหมู่สินค้า --</option>
+                {categories.map((cat) => (
+                  <option key={cat.categoryId} value={cat.categoryId}>
+                    {cat.categoryName}
+                  </option>
+                ))}
               </select>
             </S.FormGroup>
 
@@ -136,7 +148,8 @@ export default function ProfileProducts({ newProduct, handleProductChange, handl
                 type="file" 
                 accept="image/*" 
                 onChange={handleFileChange}
-                style={{ color: '#1f2937', padding: '10px 0', fontWeight: '500', cursor: 'pointer' }} 
+                /* 🟢 แก้ไขตรงนี้: ลบ padding ที่เขียนซ้ำกัน 2 ตัวออกแล้ว */
+                style={{ color: '#1f2937', fontWeight: '500', cursor: 'pointer', border:'1px solid #ffd1d7', borderRadius: '12px', padding: '12px' }}
               />
               {newProduct.image && (
                 <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -155,7 +168,7 @@ export default function ProfileProducts({ newProduct, handleProductChange, handl
             <S.Label>รายละเอียด / คำอธิบายสรรพคุณสินค้า</S.Label>
             <textarea 
               name="description"
-              value={newProduct.description}
+              value={newProduct.description || ''}
               onChange={handleProductChange}
               placeholder="ระบุวิธีใช้ ส่วนผสมหลัก หรือจุดเด่นของสินค้า..."
               rows="4"
@@ -163,6 +176,7 @@ export default function ProfileProducts({ newProduct, handleProductChange, handl
             />
           </S.FormGroup>
 
+          {/* ปุ่มส่งฟอร์ม */}
           <S.SaveButton type="submit">➕ บันทึกและนำสินค้าขึ้นหน้าร้าน</S.SaveButton>
         </S.InputsBlock>
       </S.FormContainer>

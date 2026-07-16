@@ -1,4 +1,13 @@
 // src/page/admin/services/orderService.js
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - isStaffPlacedOrder() — บรรทัด 27
+// - paymentMethodLabel() — บรรทัด 37
+// - normalizeOrder() — บรรทัด 41
+// - items() — บรรทัด 45
+// - fetchOrders() — บรรทัด 92
+// - deleteOrder() — บรรทัด 145
+// - updateOrderStatus() — บรรทัด 163
+
 
 const BACKEND_URL = "http://localhost:4000/api/orders";
 
@@ -14,11 +23,24 @@ export const ORDER_STATUS = {
 
 export const SHIPPING_STEPS = ["confirmed", "processing", "packed", "shipping", "delivered"];
 
+// 🟢 แยกคำสั่งซื้อตามคนที่ทำรายการ: Staff/Admin ซื้อเอง VS Customer สั่งเอง (ใช้ร่วมกันทั้งหน้าคำสั่งซื้อและหน้าจัดส่ง)
+export const isStaffPlacedOrder = (o) => o.placedByRole === "Staff" || o.placedByRole === "Admin";
+
+// 🟢 ชื่อวิธีชำระเงินภาษาไทย ใช้แสดงในหน้าคำสั่งซื้อ/จัดส่งของแอดมิน (ให้ตรงกับตัวเลือกในหน้า checkout)
+export const PAYMENT_METHOD_LABELS = {
+  cod: "เก็บเงินปลายทาง",
+  bank_transfer: "โอนเงินผ่านธนาคาร",
+  promptpay: "พร้อมเพย์ (PromptPay)",
+  card: "บัตรเครดิต / เดบิต",
+};
+
+export const paymentMethodLabel = (method) => PAYMENT_METHOD_LABELS[method] || method || "ไม่ระบุ";
+
 let cache = [];
 
 function normalizeOrder(o) {
   const addr = o.shippingAddress || {};
-  
+
   // 🟢 คำนวณความถูกต้องของรายการสินค้า
   const items = (o.items || []).map((it) => ({
     productId: it.productId,
@@ -26,6 +48,11 @@ function normalizeOrder(o) {
     price: Number(it.price) || 0,
     qty: Number(it.quantity || it.qty) || 1,
     image: it.image,
+    // 🟢 ที่มาของสินค้า/ผู้ขาย: ถ้า source เป็น "customer" แปลว่าสินค้านี้เป็นของที่สมาชิกโพสต์ขายเอง
+    // (ไม่ใช่ของบริษัท) เลยต้องโชว์ว่ารายการนี้ซื้อมาจากใคร
+    source: it.source || "company",
+    sellerEmail: it.sellerEmail || "",
+    sellerName: it.sellerName || "",
   }));
 
   // 🟢 คำนวณยอดเงินใหม่ (เผื่อยอดรวมถูกแยกไปบรรทัดอื่นแล้วสูญหาย)
@@ -55,6 +82,8 @@ function normalizeOrder(o) {
     carrier: o.carrier || "",
     trackingNumber: o.trackingNumber || "",
     lastUpdatedBy: o.lastUpdatedBy || "",
+    // 🟢 สิทธิ์ของคนที่กดสั่งซื้อ: Customer = ลูกค้าสั่งเอง, Staff/Admin = พนักงาน/แอดมิน login แล้วมาซื้อเอง
+    placedByRole: o.placedByRole || "Customer",
     createdAt: o.createdAt || new Date().toISOString(),
     updatedAt: o.updatedAt || o.createdAt || new Date().toISOString(),
   };
@@ -78,13 +107,13 @@ export const fetchOrders = async () => {
         groupedOrders[id] = { ...o, items: Array.isArray(o.items) ? [...o.items] : [] };
       } else {
         const existing = groupedOrders[id];
-        
+
         // 2. ถ้ารายการสินค้าถูกแยกบรรทัดมา เอามารวมกันในตะกร้าเดิม
         if (Array.isArray(o.items)) {
           existing.items.push(...o.items);
         }
-        
-        // 3. ผสานข้อมูลที่อยู่ (Shipping Address) 
+
+        // 3. ผสานข้อมูลที่อยู่ (Shipping Address)
         if (o.shippingAddress) {
           existing.shippingAddress = {
             ...(existing.shippingAddress || {}),
@@ -118,7 +147,7 @@ export const deleteOrder = async (orderId) => {
     const res = await fetch(`${BACKEND_URL}/${orderId}`, {
       method: 'DELETE',
     });
-    
+
     if (!res.ok) throw new Error("ลบข้อมูลใน Database ไม่สำเร็จ");
 
     // อัปเดต Cache ฝั่งหน้าจอเมื่อลบสำเร็จ

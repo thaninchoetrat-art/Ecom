@@ -7,11 +7,10 @@ export const ProfileWrapper = styled.div`
   padding: 0 20px;
   gap: 30px;
   font-family: 'sans-serif';
-  background-color: #fff5f6; /* พื้นหลังภายนอกสีชมพูน้ำนมซอฟต์ๆ */
+  background-color: #fff5f6;
   min-height: 80vh;
 `;
 
-// === แถบ Sidebar ด้านซ้าย ===
 export const Sidebar = styled.div`
   width: 280px;
   flex-shrink: 0;
@@ -42,7 +41,7 @@ export const UsernameText = styled.div`
 
 export const EditLink = styled.div`
   font-size: 13px;
-  color: #6b7280; /* 🔄 ปรับให้เข้มขึ้นจากเดิมที่เป็นเทาจาง */
+  color: #6b7280;
   cursor: pointer;
   &:hover { color: #db2777; }
 `;
@@ -58,23 +57,19 @@ export const MenuItem = styled.div`
   align-items: center;
   gap: 12px;
   padding: 12px 15px;
-  font-size: 15px; /* 🔄 เพิ่มขนาดตัวอักษรเมนูเล็กน้อย */
-  
-  /* 🔄 ปรับสีตัวหนังสือปกติให้เข้มขึ้นชัดเจนเป็น #374151 (เทาเข้มมาก) ไม่จางกลืนกับพื้นหลัง */
+  font-size: 15px;
   color: ${props => props.active ? '#db2777' : '#374151'};
-  font-weight: ${props => props.active ? 'bold' : '600'}; /* 🔄 ปรับให้ตัวหนาขึ้นทั้งหมด */
+  font-weight: ${props => props.active ? 'bold' : '600'};
   background-color: ${props => props.active ? '#ffe4e6' : 'transparent'};
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-
   &:hover {
     background-color: #fff1f2;
     color: #db2777;
   }
 `;
 
-// === ฝั่งเนื้อหาข้อมูลส่วนตัวด้านขวา ===
 export const MainContent = styled.div`
   flex-grow: 1;
   background: linear-gradient(to right, #fff1f2 0%, #ffffff 70%, #ffffff 100%);
@@ -92,15 +87,15 @@ export const HeaderSection = styled.div`
 
 export const PageTitle = styled.h2`
   margin: 0;
-  font-size: 22px; /* 🔄 เพิ่มขนาดหัวข้อ */
-  color: #111827; /* สีดำเข้มชัดเจน */
-  font-weight: 800; /* หนาพิเศษ */
+  font-size: 22px;
+  color: #111827;
+  font-weight: 800;
 `;
 
 export const PageSubTitle = styled.p`
   margin: 5px 0 0 0;
   font-size: 14px;
-  color: #374151; /* 🔄 ปรับสีคำอธิบายย่อยให้เข้มขึ้นชัดเจน */
+  color: #374151;
   font-weight: 500;
 `;
 
@@ -113,28 +108,29 @@ export const InputsBlock = styled.form`
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 20px;
 `;
 
 export const FormGroup = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 140px 1fr;
   align-items: center;
+  gap: 20px;
+  width: 100%;
 `;
 
 export const Label = styled.label`
-  width: 140px;
   font-size: 14px;
-  color: #1f2937; /* 🔄 เปลี่ยนสีป้ายชื่อฟิลด์ (เช่น ชื่อผู้ใช้, อีเมล) จากเทาจางเป็นสีเข้ม */
-  font-weight: 600; /* 🔄 ปรับตัวหนาขึ้น */
+  color: #1f2937;
+  font-weight: 600;
   text-align: right;
-  padding-right: 30px;
   flex-shrink: 0;
 `;
 
 export const StaticText = styled.span`
   font-size: 14px;
   color: #111827;
-  font-weight: bold; /* 🔄 ทำให้ชื่อผู้ใช้ที่เป็น Text ดูเด่นชัดขึ้น */
+  font-weight: bold;
 `;
 
 export const InputField = styled.input`
@@ -143,17 +139,12 @@ export const InputField = styled.input`
   padding: 10px 14px;
   border: 1px solid #ffd1d7;
   background-color: #ffffff;
-  color: #111827; /* ตัวหนังสือที่พิมพ์เป็นสีเข้ม */
+  color: #111827;
   border-radius: 12px;
   font-size: 14px;
   outline: none;
   transition: all 0.2s;
-  
-  /* 🔄 ปรับสีข้อความบอกใบ้ (Placeholder) ให้เข้มพอดีๆ ไม่อ่อนเกินไป */
-  &::placeholder {
-    color: #9ca3af; 
-  }
-
+  &::placeholder { color: #9ca3af; }
   &:focus {
     border-color: #db2777;
     box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.1);
@@ -164,12 +155,9 @@ export const RadioGroup = styled.div`
   display: flex;
   gap: 20px;
   font-size: 14px;
-  color: #1f2937; /* 🔄 ปรับสีตัวอักษร ชาย/หญิง/อื่นๆ ให้เข้มชัดเจน */
+  color: #1f2937;
   font-weight: 600;
-
-  input[type="radio"] {
-    accent-color: #db2777;
-  }
+  input[type="radio"] { accent-color: #db2777; }
 `;
 
 export const SelectGroup = styled.div`
@@ -177,7 +165,6 @@ export const SelectGroup = styled.div`
   gap: 10px;
   width: 100%;
   max-width: 450px;
-  
   select {
     flex: 1;
     padding: 10px;
@@ -192,7 +179,7 @@ export const SelectGroup = styled.div`
 `;
 
 export const SaveButton = styled.button`
-  margin-left: 140px;
+  margin-left: 160px;
   width: 140px;
   padding: 12px;
   border: none;
@@ -204,14 +191,12 @@ export const SaveButton = styled.button`
   cursor: pointer;
   box-shadow: 0 10px 15px -3px rgba(236, 72, 153, 0.2);
   transition: all 0.2s;
-  
   &:hover {
     transform: translateY(-1px);
     box-shadow: 0 12px 20px -3px rgba(236, 72, 153, 0.3);
   }
 `;
 
-// === ฝั่งอัปโหลดรูปภาพขวาขวาสุด ===
 export const ImageUploadBlock = styled.div`
   width: 220px;
   border-left: 1px solid #ffe4e6;
@@ -235,12 +220,11 @@ export const UploadButton = styled.label`
   border: 1px solid #ffd1d7;
   border-radius: 10px;
   font-size: 13px;
-  color: #1f2937; /* 🔄 ตัวอักษรปุ่มเลือกรูปเข้มขึ้น */
+  color: #1f2937;
   font-weight: 600;
   cursor: pointer;
   background-color: #fff;
   transition: all 0.2s;
-  
   &:hover {
     background-color: #fff1f2;
     color: #db2777;
@@ -250,7 +234,7 @@ export const UploadButton = styled.label`
 
 export const UploadHint = styled.p`
   font-size: 12px;
-  color: #4b5563; /* 🔄 คำแนะนำขนาดไฟล์เข้มขึ้นให้อ่านออก */
+  color: #4b5563;
   text-align: center;
   line-height: 1.6;
   margin: 0;

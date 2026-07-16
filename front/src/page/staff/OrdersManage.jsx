@@ -1,42 +1,56 @@
+// front/src/page/staff/OrdersManage.jsx
+// 🟢 หน้าตรวจสอบคำสั่งซื้อของ Staff (path: /staff) — ปรับให้เห็น/ทำงานเหมือนหน้า Admin แล้ว
+// มีแท็บ ทั้งหมด/Staff/Customer (ดูจาก isStaffPlacedOrder), เห็นออเดอร์ทั้งหมดในระบบ
+// (ไม่ซ่อนออเดอร์ที่มีสินค้าจาก Customer โพสต์ขายเองอีกต่อไป), อัปเดตสถานะ/ลบออเดอร์,
+// และโชว์ 'ซื้อจาก: ...' เมื่อสินค้าชิ้นนั้นเป็นของที่ Customer โพสต์ขายเอง
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - currency() — บรรทัด 21
+// - OrdersManage() — บรรทัด 29
+// - loadData() — บรรทัด 37
+// - handleDelete() — บรรทัด 56
+// - handleUpdateStatus() — บรรทัด 82
+
 import { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
 import { FiSearch, FiEye, FiTrash2 } from "react-icons/fi";
 import Modal from "./components/Modal";
 import StatusBadge from "./components/StatusBadge";
-import { fetchOrders, deleteOrder, updateOrderStatus, ORDER_STATUS } from "./services/orderService";
-import { fetchProducts, isCompanyProduct } from "../products/productService";
+import { fetchOrders, deleteOrder, updateOrderStatus, ORDER_STATUS, isStaffPlacedOrder, paymentMethodLabel } from "./services/orderService";
 
 const currency = (n) => `฿${Number(n || 0).toLocaleString("th-TH")}`;
+
+const ORIGIN_TABS = [
+  { key: "all", label: "ทั้งหมด" },
+  { key: "staff", label: "Staff" },
+  { key: "customer", label: "Customer" },
+];
 
 const OrdersManage = () => {
   const [orders, setOrders] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [originTab, setOriginTab] = useState("all");
   const [selected, setSelected] = useState(null);
   const [noteInput, setNoteInput] = useState("");
 
-  const loadData = async () => {
-    const allOrders = await fetchOrders();
-    // 🟢 staff จัดการเฉพาะคำสั่งซื้อของสินค้าบริษัทเท่านั้น
-    // คำสั่งซื้อที่มีสินค้าซึ่งลูกค้าลงขายเอง (source: customer) จะไม่แสดงและยุ่งไม่ได้เลย
-    const customerProductIds = new Set(
-      fetchProducts().filter((p) => !isCompanyProduct(p)).map((p) => p.productId)
-    );
-    const companyOrders = allOrders.filter(
-      (o) => !(o.items || []).some((it) => customerProductIds.has(it.productId))
-    );
-    setOrders(companyOrders);
-  };
+  const loadData = async () => setOrders(await fetchOrders());
   useEffect(() => { loadData(); }, []);
+
+  const staffCount = useMemo(() => orders.filter(isStaffPlacedOrder).length, [orders]);
+  const customerCount = useMemo(() => orders.filter((o) => !isStaffPlacedOrder(o)).length, [orders]);
 
   const filtered = useMemo(() => {
     return orders.filter((o) => {
       const matchSearch = !search || o.orderId.toLowerCase().includes(search.toLowerCase()) || o.customerName?.toLowerCase().includes(search.toLowerCase());
       const matchStatus = !statusFilter || o.status === statusFilter;
-      return matchSearch && matchStatus;
+      const matchOrigin =
+        originTab === "all" ||
+        (originTab === "staff" && isStaffPlacedOrder(o)) ||
+        (originTab === "customer" && !isStaffPlacedOrder(o));
+      return matchSearch && matchStatus && matchOrigin;
     }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  }, [orders, search, statusFilter]);
+  }, [orders, search, statusFilter, originTab]);
 
   // 🟢 ฟังก์ชันแก้ไขปัญหาระบบลบคำสั่งซื้อ (เชื่อมต่อ API จริงแล้ว)
   const handleDelete = async (order) => {
@@ -76,6 +90,29 @@ const OrdersManage = () => {
 
   return (
     <div className="flex w-full flex-col gap-6 !p-6 md:!p-8 !mx-auto !max-w-7xl">
+      {/* 🟢 แท็บแยกที่มาของคำสั่งซื้อ: Staff (ซื้อเอง) VS Customer (สั่งเอง) — เหมือนฝั่ง Admin */}
+      <div className="flex flex-wrap gap-2 rounded-2xl border border-gray-100 bg-white !p-2 shadow-sm">
+        {ORIGIN_TABS.map((tab) => {
+          const count = tab.key === "all" ? orders.length : tab.key === "staff" ? staffCount : customerCount;
+          const isActive = originTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setOriginTab(tab.key)}
+              className={`flex items-center gap-2 rounded-xl !px-4 !py-2 text-sm font-semibold transition ${
+                isActive ? "bg-pink-500 text-white shadow-sm" : "text-gray-500 hover:bg-pink-50 hover:text-pink-600"
+              }`}
+            >
+              {tab.label}
+              <span className={`rounded-full !px-2 text-xs font-bold ${isActive ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"}`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white !p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row">
           <div className="relative flex-1 sm:max-w-xs">
@@ -101,6 +138,7 @@ const OrdersManage = () => {
                 <th className="!px-6 !py-4 font-medium">ยอดรวม</th>
                 <th className="!px-6 !py-4 font-medium">การชำระเงิน</th>
                 <th className="!px-6 !py-4 font-medium">สถานะ</th>
+                <th className="!px-6 !py-4 font-medium">ที่มา</th>
                 <th className="!px-6 !py-4 font-medium">วันที่สั่งซื้อ</th>
                 <th className="!px-6 !py-4 text-right font-medium">จัดการ</th>
               </tr>
@@ -114,8 +152,18 @@ const OrdersManage = () => {
                     <td className="!px-6 !py-4">{o.customerName}</td>
                     <td className="!px-6 !py-4">{(o.items || []).length} รายการ</td>
                     <td className="!px-6 !py-4 font-semibold">{currency(o.total)}</td>
-                    <td className="!px-6 !py-4"><StatusBadge label={o.paymentStatus === "paid" ? "ชำระแล้ว" : "ยังไม่ชำระ"} color={o.paymentStatus === "paid" ? "green" : "amber"} /></td>
+                    <td className="!px-6 !py-4">
+                      <StatusBadge label={o.paymentStatus === "paid" ? "ชำระแล้ว" : "ยังไม่ชำระ"} color={o.paymentStatus === "paid" ? "green" : "amber"} />
+                      <p className="mt-1 text-xs text-gray-400">{paymentMethodLabel(o.paymentMethod)}</p>
+                    </td>
                     <td className="!px-6 !py-4"><StatusBadge label={meta.label} color={meta.color} /></td>
+                    <td className="!px-6 !py-4">
+                      {isStaffPlacedOrder(o) ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-600">Staff</span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600">Customer</span>
+                      )}
+                    </td>
                     <td className="!px-6 !py-4 text-gray-500">{dayjs(o.createdAt).format("D MMM YYYY HH:mm")}</td>
                     <td className="!px-6 !py-4">
                       <div className="flex justify-end gap-2">
@@ -128,7 +176,7 @@ const OrdersManage = () => {
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="!px-6 !py-10 text-center text-gray-400">ไม่พบคำสั่งซื้อ</td>
+                  <td colSpan={9} className="!px-6 !py-10 text-center text-gray-400">ไม่พบคำสั่งซื้อ</td>
                 </tr>
               )}
             </tbody>
@@ -150,6 +198,11 @@ const OrdersManage = () => {
                 <p className="text-xs text-gray-400">ที่อยู่จัดส่ง</p>
                 <p className="text-gray-700">{selected.shippingAddress || "-"}</p>
               </div>
+              <div>
+                <p className="text-xs text-gray-400">วิธีชำระเงิน</p>
+                <p className="font-medium text-gray-800">{paymentMethodLabel(selected.paymentMethod)}</p>
+                <StatusBadge label={selected.paymentStatus === "paid" ? "ชำระแล้ว" : "ยังไม่ชำระ"} color={selected.paymentStatus === "paid" ? "green" : "amber"} />
+              </div>
             </div>
 
             <div>
@@ -157,7 +210,16 @@ const OrdersManage = () => {
               <div className="divide-y divide-gray-100 rounded-xl border border-gray-100">
                 {(selected.items || []).map((it, idx) => (
                   <div key={idx} className="flex items-center justify-between px-4 py-2.5 text-sm">
-                    <span className="text-gray-700">{it.productName} <span className="text-gray-400">x{it.qty}</span></span>
+                    <div>
+                      <span className="text-gray-700">{it.productName} <span className="text-gray-400">x{it.qty}</span></span>
+                      {/* 🟢 ถ้าสินค้าชิ้นนี้เป็นของที่ Customer โพสต์ขายเอง ให้บอกด้วยว่าซื้อจากใคร */}
+                      {it.source === "customer" && (
+                        <p className="mt-0.5 text-xs text-emerald-600">
+                          ซื้อจาก: {it.sellerName || it.sellerEmail || "ไม่ระบุผู้ขาย"}
+                          {it.sellerName && it.sellerEmail ? ` (${it.sellerEmail})` : ""}
+                        </p>
+                      )}
+                    </div>
                     <span className="font-medium text-gray-800">{currency(it.price * it.qty)}</span>
                   </div>
                 ))}
@@ -178,7 +240,6 @@ const OrdersManage = () => {
                       <div className="flex items-center gap-2">
                         <StatusBadge label={meta.label} color={meta.color} />
                         <span className="text-gray-400">{h.note}</span>
-                        {/* 🟢 แสดงชื่อคนที่กดอัปเดตสถานะนี้ (มาจากฟิลด์ updatedBy ที่ backend เพิ่งบันทึกให้) */}
                         {h.updatedBy && <span className="font-medium text-pink-500">โดย {h.updatedBy}</span>}
                       </div>
                       <span className="text-gray-400">{dayjs(h.date).format("D MMM HH:mm")}</span>

@@ -1,6 +1,16 @@
-// src/page/admin/services/backupService.js
-// จัดการระบบสำรองข้อมูล (Backup) — เฉพาะ Admin เท่านั้นที่เรียกได้
-// (ฝั่ง backend มี verifyToken + requireRole('Admin') กันไว้อีกชั้นเสมอ)
+// front/src/page/admin/services/backupService.js
+// 🟢 ฟังก์ชันเรียก backend สำหรับหน้า BackupManage.jsx ทั้งหมด (ยิงไป /api/admin/backups)
+// fetchBackups (ดูรายการไฟล์), runBackupNow (สำรองทันที), downloadBackup, deleteBackup,
+// restoreBackup (กู้คืนทั้งไฟล์), previewBackup + restoreSelected (กู้คืนเฉพาะรายการที่เลือก)
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - authHeaders() — บรรทัด 17
+// - fetchBackups() — บรรทัด 25
+// - runBackupNow() — บรรทัด 32
+// - downloadBackup() — บรรทัด 42
+// - deleteBackup() — บรรทัด 62
+// - restoreBackup() — บรรทัด 72
+// - previewBackup() — บรรทัด 82
+// - restoreSelected() — บรรทัด 91
 
 const BACKEND_URL = "http://localhost:4000/api/admin/backups";
 
@@ -29,8 +39,6 @@ export const runBackupNow = async () => {
   return data.backup;
 };
 
-// ดาวน์โหลดไฟล์ backup — ต้องแนบ Authorization header เอง (ทำผ่าน <a> ธรรมดาไม่ได้)
-// จึงดึงเป็น blob แล้วสร้างลิงก์ดาวน์โหลดชั่วคราวแทน
 export const downloadBackup = async (fileName) => {
   const res = await fetch(`${BACKEND_URL}/${encodeURIComponent(fileName)}`, {
     headers: authHeaders(),
@@ -61,7 +69,6 @@ export const deleteBackup = async (fileName) => {
   return data;
 };
 
-// กู้คืนข้อมูลจากไฟล์ backup ที่เลือก — เขียนทับข้อมูลปัจจุบันทั้งหมดใน back/data/
 export const restoreBackup = async (fileName) => {
   const res = await fetch(`${BACKEND_URL}/${encodeURIComponent(fileName)}/restore`, {
     method: "POST",
@@ -72,7 +79,6 @@ export const restoreBackup = async (fileName) => {
   return data.restore;
 };
 
-// ดูตัวอย่างเนื้อหาในไฟล์ backup (รายชื่อบัญชี + รายการออเดอร์) เพื่อเลือกกู้คืนเฉพาะรายการ
 export const previewBackup = async (fileName) => {
   const res = await fetch(`${BACKEND_URL}/${encodeURIComponent(fileName)}/preview`, {
     headers: authHeaders(),
@@ -82,7 +88,6 @@ export const previewBackup = async (fileName) => {
   return data.preview;
 };
 
-// กู้คืนแบบเลือกรายการ — เฉพาะบัญชีผู้ใช้ (userKeys) และ/หรือออเดอร์ (orderIds) ที่เลือกเท่านั้น
 export const restoreSelected = async (fileName, { userKeys = [], orderIds = [] }) => {
   const res = await fetch(`${BACKEND_URL}/${encodeURIComponent(fileName)}/restore-selected`, {
     method: "POST",

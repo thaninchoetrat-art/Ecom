@@ -1,3 +1,14 @@
+// front/src/page/admin/InventoryManage.jsx
+// 🟢 หน้าจัดการคลังสินค้า (path: /admin/inventory)
+// แสดงสินค้าทั้งหมด (ไม่กรองที่มา) + ปรับสต็อกผ่าน adjustStock() และดูประวัติการเคลื่อนไหว
+// (แยกแท็บ Staff/Customer ในส่วนประวัติ ตาม actor ที่บันทึกไว้ในแต่ละ log)
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - isStaffLog() — บรรทัด 25
+// - InventoryManage() — บรรทัด 32
+// - loadData() — บรรทัด 42
+// - openAdjust() — บรรทัด 72
+// - handleSubmit() — บรรทัด 78
+
 import { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
@@ -11,11 +22,19 @@ import {
   MOVEMENT_TYPES,
 } from "./services/inventoryService";
 
+const isStaffLog = (log) => (log.actor || "Staff") === "Staff";
+const ORIGIN_TABS = [
+  { key: "all", label: "ทั้งหมด" },
+  { key: "staff", label: "Staff" },
+  { key: "customer", label: "Customer" },
+];
+
 const InventoryManage = () => {
   const [products, setProducts] = useState([]);
   const [logs, setLogs] = useState([]);
   const [search, setSearch] = useState("");
   const [onlyLowStock, setOnlyLowStock] = useState(false);
+  const [logOriginTab, setLogOriginTab] = useState("all");
   const [modalOpen, setModalOpen] = useState(false);
   const [target, setTarget] = useState(null);
   const [form, setForm] = useState({ type: "in", qty: "", reason: "" });
@@ -36,6 +55,19 @@ const InventoryManage = () => {
       return matchSearch && matchLow;
     });
   }, [products, search, onlyLowStock]);
+
+  const staffLogCount = useMemo(() => logs.filter(isStaffLog).length, [logs]);
+  const customerLogCount = useMemo(() => logs.filter((l) => !isStaffLog(l)).length, [logs]);
+
+  const filteredLogs = useMemo(() => {
+    return logs.filter((log) => {
+      return (
+        logOriginTab === "all" ||
+        (logOriginTab === "staff" && isStaffLog(log)) ||
+        (logOriginTab === "customer" && !isStaffLog(log))
+      );
+    });
+  }, [logs, logOriginTab]);
 
   const openAdjust = (product) => {
     setTarget(product);
@@ -64,7 +96,6 @@ const InventoryManage = () => {
   const outOfStockCount = products.filter((p) => Number(p.stock) === 0).length;
 
   return (
-    /* ปรับปรุง: เพิ่ม !p-6 md:!p-8 !mx-auto !max-w-7xl ที่กล่องนอกสุดเพื่อไม่ให้หน้าคลังสินค้าชิดขอบ */
     <div className="flex w-full flex-col gap-6 !p-6 md:!p-8 !mx-auto !max-w-7xl">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-gray-100 bg-white !p-5 shadow-sm">
@@ -164,25 +195,55 @@ const InventoryManage = () => {
         </div>
 
         <div className="rounded-2xl border border-gray-100 bg-white !p-6 shadow-sm">
-          <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-gray-900">
+          <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-gray-900">
             <FiClock className="text-pink-500" /> ประวัติการเคลื่อนไหวล่าสุด
           </h3>
-          <div className="flex max-h-[420px] flex-col gap-3 overflow-y-auto pr-1">
-            {logs.length === 0 && <p className="text-sm text-gray-400">ยังไม่มีประวัติการปรับสต็อก</p>}
-            {logs.slice(0, 20).map((log) => (
-              <div key={log.id} className="rounded-xl border border-gray-100 !p-4 text-xs">
-                <div className="mb-1 flex items-center justify-between">
-                  <span className="font-semibold text-gray-800">{log.productName}</span>
-                  <span
-                    className={`rounded-full px-2 py-0.5 font-bold ${log.type === "in"
-                        ? "bg-emerald-50 text-emerald-600"
-                        : log.type === "out"
-                          ? "bg-red-50 text-red-600"
-                          : "bg-blue-50 text-blue-600"
-                      }`}
-                  >
-                    {MOVEMENT_TYPES[log.type]?.label}
+
+          <div className="mb-4 flex flex-wrap gap-1.5">
+            {ORIGIN_TABS.map((tab) => {
+              const count = tab.key === "all" ? logs.length : tab.key === "staff" ? staffLogCount : customerLogCount;
+              const isActive = logOriginTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setLogOriginTab(tab.key)}
+                  className={`flex items-center gap-1.5 rounded-lg !px-3 !py-1.5 text-xs font-semibold transition ${
+                    isActive ? "bg-pink-500 text-white" : "bg-gray-50 text-gray-500 hover:bg-pink-50 hover:text-pink-600"
+                  }`}
+                >
+                  {tab.label}
+                  <span className={`rounded-full !px-1.5 text-[10px] font-bold ${isActive ? "bg-white/20 text-white" : "bg-gray-200 text-gray-500"}`}>
+                    {count}
                   </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex max-h-[380px] flex-col gap-3 overflow-y-auto pr-1">
+            {filteredLogs.length === 0 && <p className="text-sm text-gray-400">ยังไม่มีประวัติการปรับสต็อก</p>}
+            {filteredLogs.slice(0, 20).map((log) => (
+              <div key={log.id} className="rounded-xl border border-gray-100 !p-4 text-xs">
+                <div className="mb-1 flex items-center justify-between gap-2">
+                  <span className="font-semibold text-gray-800">{log.productName}</span>
+                  <div className="flex items-center gap-1.5">
+                    {isStaffLog(log) ? (
+                      <span className="rounded-full bg-violet-50 px-2 py-0.5 font-bold text-violet-600">Staff</span>
+                    ) : (
+                      <span className="rounded-full bg-emerald-50 px-2 py-0.5 font-bold text-emerald-600">Customer</span>
+                    )}
+                    <span
+                      className={`rounded-full px-2 py-0.5 font-bold ${log.type === "in"
+                          ? "bg-emerald-50 text-emerald-600"
+                          : log.type === "out"
+                            ? "bg-red-50 text-red-600"
+                            : "bg-blue-50 text-blue-600"
+                        }`}
+                    >
+                      {MOVEMENT_TYPES[log.type]?.label}
+                    </span>
+                  </div>
                 </div>
                 <p className="text-gray-500">
                   {log.stockBefore} → {log.stockAfter} ชิ้น {log.reason && `· ${log.reason}`}

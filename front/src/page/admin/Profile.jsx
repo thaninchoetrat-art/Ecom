@@ -1,5 +1,9 @@
 // src/page/admin/Profile.jsx
 // 🟢 หน้าโปรไฟล์ของผู้ดูแลระบบ (Admin) เอง — เดิมกดที่มุมขวาบน (Topbar) แล้วไม่มีอะไรเกิดขึ้น
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - AdminProfile() — บรรทัด 16
+// - handleLogout() — บรรทัด 34
+
 import { useEffect, useState } from "react";
 import { FiMail, FiPhone, FiShield, FiCalendar, FiLogOut, FiUser } from "react-icons/fi";
 import dayjs from "dayjs";

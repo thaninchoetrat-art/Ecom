@@ -1,9 +1,22 @@
+// front/src/page/staff/InventoryManage.jsx
+// 🟢 หน้าจัดการสต๊อกสินค้าของ Staff (path: /staff/inventory)
+// แสดงสินค้าทั้งหมดในระบบเหมือนฝั่ง Admin (เดิมกรองเฉพาะสินค้าบริษัทจนบางทีไม่เห็นข้อมูลเลย แก้แล้ว)
+// ปรับสต็อกผ่าน adjustStock() และมีฟอร์ม 'เพิ่มสินค้าใหม่' ในตัวเอง (เพิ่มเติมจากฝั่ง Admin)
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - InventoryManage() — บรรทัด 29
+// - loadData() — บรรทัด 44
+// - openAdjust() — บรรทัด 65
+// - handleSubmit() — บรรทัด 71
+// - handleDeleteProduct() — บรรทัด 88
+// - openAddProduct() — บรรทัด 105
+// - handleAddProduct() — บรรทัด 110
+
 import { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
 import { FiSearch, FiPackage, FiClock, FiAlertTriangle, FiPlus, FiTrash2 } from "react-icons/fi";
 import Modal from "./components/Modal";
-import { fetchProducts, addProduct, deleteProduct, fetchCategories, isCompanyProduct } from "../products/productService";
+import { fetchProducts, addProduct, deleteProduct, fetchCategories } from "../products/productService";
 import {
   fetchInventoryLogs,
   adjustStock,
@@ -29,9 +42,10 @@ const InventoryManage = () => {
   const [saving, setSaving] = useState(false);
 
   const loadData = () => {
-    // 🟢 คลังสินค้าของ staff จัดการเฉพาะสินค้าของบริษัทเอง (source: company) เท่านั้น
-    // ไม่รวมสินค้าที่ลูกค้าลงขายเอง (source: customer) แยกออกจากกันชัดเจน
-    setProducts(fetchProducts().filter(isCompanyProduct));
+    // 🟢 เดิมกรองเหลือแค่สินค้าของบริษัท (source: company) ทำให้ถ้าสินค้าที่มีอยู่ตอนนี้
+    // เป็นของ Customer ที่ลงขายเองทั้งหมด หน้าคลังจะไม่มีอะไรขึ้นเลยสักรายการ
+    // ตอนนี้แสดงสินค้าทั้งหมดเหมือนฝั่ง Admin (ไม่ซ่อนข้อมูลทิ้ง)
+    setProducts(fetchProducts());
     setCategories(fetchCategories());
     setLogs(fetchInventoryLogs());
   };
@@ -118,7 +132,7 @@ const InventoryManage = () => {
     <div className="flex w-full flex-col gap-6 !p-6 md:!p-8 !mx-auto !max-w-7xl">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-gray-100 bg-white !p-5 shadow-sm">
-          <p className="text-xs text-gray-400">สินค้าของบริษัททั้งหมด</p>
+          <p className="text-xs text-gray-400">สินค้าทั้งหมด</p>
           <p className="mt-1 text-2xl font-bold text-gray-900">{products.length}</p>
         </div>
         <div className="rounded-2xl border border-amber-100 bg-amber-50 !p-5 shadow-sm">

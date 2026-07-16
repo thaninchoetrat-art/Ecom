@@ -1,5 +1,16 @@
-// inventoryService.js
-// ระบบตรวจสอบและจัดการคลังสินค้า (Stock Movement) ด้วย Local Storage
+// front/src/page/admin/services/inventoryService.js
+// 🟢 จัดการสต็อกสินค้า + ประวัติการเคลื่อนไหว (เก็บ log ใน localStorage คีย์ my_inventory_logs)
+// adjustStock: ปรับสต็อกเอง (actor: Staff), logAutoDeduction: บันทึกอัตโนมัติตอนลูกค้าสั่งซื้อ
+// (actor: Customer) ใช้โดย InventoryManage.jsx และ dashboardService.js (getLowStockProducts)
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - uid() — บรรทัด 27
+// - readKey() — บรรทัด 29
+// - writeKey() — บรรทัด 39
+// - fetchInventoryLogs() — บรรทัด 44
+// - saveInventoryLogs() — บรรทัด 45
+// - adjustStock() — บรรทัด 47
+// - logAutoDeduction() — บรรทัด 81
+// - getLowStockProducts() — บรรทัด 101
 
 import { fetchProducts, updateProduct } from "../../products/productService";
 
@@ -33,8 +44,6 @@ const writeKey = (key, data) => {
 export const fetchInventoryLogs = () => readKey(KEYS.LOGS, []);
 export const saveInventoryLogs = (data) => writeKey(KEYS.LOGS, data);
 
-// ปรับสต็อกสินค้า พร้อมบันทึกประวัติการเคลื่อนไหว
-// type: "in" | "out" | "adjust"
 export const adjustStock = ({ productId, type, qty, reason }) => {
   const products = fetchProducts();
   const product = products.find((p) => p.productId === productId);
@@ -59,12 +68,34 @@ export const adjustStock = ({ productId, type, qty, reason }) => {
     stockAfter: newStock,
     reason: reason || "-",
     date: new Date().toISOString(),
+
+    actor: "Staff",
   };
 
   const logs = fetchInventoryLogs();
   saveInventoryLogs([log, ...logs]);
 
   return { newStock, log };
+};
+
+export const logAutoDeduction = ({ productId, productName, qty, stockBefore, stockAfter, orderId }) => {
+  const log = {
+    id: uid(),
+    productId,
+    productName,
+    type: "out",
+    qty: Number(qty),
+    stockBefore,
+    stockAfter,
+    reason: orderId ? `หักสต็อกจากคำสั่งซื้อ ${orderId}` : "หักสต็อกจากคำสั่งซื้อ",
+    date: new Date().toISOString(),
+    actor: "Customer",
+  };
+
+  const logs = fetchInventoryLogs();
+  saveInventoryLogs([log, ...logs]);
+
+  return log;
 };
 
 export const getLowStockProducts = (threshold = LOW_STOCK_THRESHOLD) =>

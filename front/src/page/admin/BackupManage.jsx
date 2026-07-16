@@ -1,4 +1,23 @@
-import { useEffect, useState } from "react";
+// front/src/page/admin/BackupManage.jsx
+// 🟢 หน้าสำรอง/กู้คืนข้อมูล (path: /admin/backup) — เฉพาะ Admin เท่านั้น
+// เรียกใช้ admin/services/backupService.js ซึ่งยิงไปที่ back/controllers/backupController.js
+// ฟังก์ชันหลัก: fetchBackups, runBackupNow, downloadBackup, deleteBackup,
+// restoreBackup (กู้คืนทั้งหมด), previewBackup + restoreSelected (กู้คืนเฉพาะรายการที่เลือก)
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - formatSize() — บรรทัด 27
+// - BackupManage() — บรรทัด 41
+// - loadData() — บรรทัด 57
+// - handleRunBackup() — บรรทัด 76
+// - handleDownload() — บรรทัด 89
+// - handleRestore() — บรรทัด 100
+// - openSelectModal() — บรรทัด 130
+// - closeSelectModal() — บรรทัด 146
+// - toggleUserKey() — บรรทัด 153
+// - toggleOrderId() — บรรทัด 157
+// - handleConfirmRestoreSelected() — บรรทัด 161
+// - handleDelete() — บรรทัด 201
+
+import { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
 import { FiDatabase, FiDownload, FiRefreshCw, FiTrash2, FiRotateCcw, FiList } from "react-icons/fi";
@@ -12,6 +31,13 @@ const formatSize = (bytes) => {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 };
 
+
+const ORIGIN_TABS = [
+  { key: "all", label: "ทั้งหมด" },
+  { key: "staff", label: "Staff" },
+  { key: "customer", label: "Customer" },
+];
+
 const BackupManage = () => {
   const [backups, setBackups] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,9 +45,9 @@ const BackupManage = () => {
   const [downloading, setDownloading] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [restoring, setRestoring] = useState(null);
+  const [originTab, setOriginTab] = useState("all");
 
-  // สำหรับ Modal กู้คืนแบบเลือกรายการ (เลือกบัญชี/ออเดอร์เฉพาะที่ต้องการ)
-  const [selectModal, setSelectModal] = useState(null); // เก็บ fileName ที่กำลังเปิดดูอยู่
+  const [selectModal, setSelectModal] = useState(null); 
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewData, setPreviewData] = useState({ users: [], orders: [] });
   const [selectedUserKeys, setSelectedUserKeys] = useState([]);
@@ -41,6 +67,11 @@ const BackupManage = () => {
   };
 
   useEffect(() => { loadData(); }, []);
+
+  const filteredBackups = useMemo(() => {
+    if (originTab === "customer") return [];
+    return backups;
+  }, [backups, originTab]);
 
   const handleRunBackup = async () => {
     setRunning(true);
@@ -194,6 +225,29 @@ const BackupManage = () => {
 
   return (
     <div className="flex w-full flex-col gap-6 !p-6 md:!p-8 !mx-auto !max-w-7xl">
+      {/* 🟢 แท็บแยกที่มา: Staff เท่านั้น (Customer ไม่มีสิทธิ์เข้าหน้านี้ จึงไม่มีไฟล์ในกลุ่มนี้) */}
+      <div className="flex flex-wrap gap-2 rounded-2xl border border-gray-100 bg-white !p-2 shadow-sm">
+        {ORIGIN_TABS.map((tab) => {
+          const count = tab.key === "all" ? backups.length : tab.key === "staff" ? backups.length : 0;
+          const isActive = originTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setOriginTab(tab.key)}
+              className={`flex items-center gap-2 rounded-xl !px-4 !py-2 text-sm font-semibold transition ${
+                isActive ? "bg-pink-500 text-white shadow-sm" : "text-gray-500 hover:bg-pink-50 hover:text-pink-600"
+              }`}
+            >
+              {tab.label}
+              <span className={`rounded-full !px-2 text-xs font-bold ${isActive ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"}`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white !p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-100 text-pink-600">
@@ -222,15 +276,19 @@ const BackupManage = () => {
                 <th className="!px-6 !py-4 font-medium">ชื่อไฟล์</th>
                 <th className="!px-6 !py-4 font-medium">วันที่สร้าง</th>
                 <th className="!px-6 !py-4 font-medium">ขนาดไฟล์</th>
+                <th className="!px-6 !py-4 font-medium">ที่มา</th>
                 <th className="!px-6 !py-4 font-medium text-right">จัดการ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {backups.map((b) => (
+              {filteredBackups.map((b) => (
                 <tr key={b.fileName} className="text-gray-700 hover:bg-pink-50/30">
                   <td className="!px-6 !py-4 font-medium text-gray-900">{b.fileName}</td>
                   <td className="!px-6 !py-4 text-gray-500">{dayjs(b.createdAt).format("D MMM YYYY HH:mm")}</td>
                   <td className="!px-6 !py-4 text-gray-500">{formatSize(b.size)}</td>
+                  <td className="!px-6 !py-4">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-600">Staff</span>
+                  </td>
                   <td className="!px-6 !py-4">
                     <div className="flex justify-end gap-2">
                       <button
@@ -268,14 +326,14 @@ const BackupManage = () => {
                   </td>
                 </tr>
               ))}
-              {!loading && backups.length === 0 && (
+              {!loading && filteredBackups.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="!px-6 !py-10 text-center text-gray-400">ยังไม่มีไฟล์สำรองข้อมูล</td>
+                  <td colSpan={5} className="!px-6 !py-10 text-center text-gray-400">ยังไม่มีไฟล์สำรองข้อมูล</td>
                 </tr>
               )}
               {loading && (
                 <tr>
-                  <td colSpan={4} className="!px-6 !py-10 text-center text-gray-400">กำลังโหลด...</td>
+                  <td colSpan={5} className="!px-6 !py-10 text-center text-gray-400">กำลังโหลด...</td>
                 </tr>
               )}
             </tbody>

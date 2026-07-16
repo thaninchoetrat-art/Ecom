@@ -1,18 +1,18 @@
-// front/src/page/admin/ProductsManage.jsx
-// 🟢 หน้าจัดการสินค้า (path: /admin/products) — CRUD สินค้าทั้งหมด (เก็บใน localStorage)
-// มีแท็บ ทั้งหมด/Staff/Customer แยกตามที่มาของสินค้า (source: company/customer)
-// นี่คือไฟล์ต้นแบบที่ staff/ProductsManage.jsx สร้างตามรูปแบบเดียวกัน
+// front/src/page/staff/ProductsManage.jsx
+// 🟢 หน้าจัดการสินค้าของ Staff (path: /staff/products) — สร้างตามรูปแบบเดียวกับ
+// admin/ProductsManage.jsx ทุกประการ (CRUD สินค้า, แท็บ ทั้งหมด/Staff/Customer)
+// สินค้าที่เพิ่มจากหน้านี้บันทึกเป็นที่มา 'company' เสมอ
 // 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
-// - currency() — บรรทัด 24
-// - isStaffSourced() — บรรทัด 26
-// - ProductsManage() — บรรทัด 33
-// - loadData() — บรรทัด 45
-// - categoryName() — บรรทัด 52
-// - openCreate() — บรรทัด 69
-// - openEdit() — บรรทัด 75
-// - handleDelete() — บรรทัด 81
-// - handleImageFile() — บรรทัด 98
-// - handleSubmit() — บรรทัด 120
+// - currency() — บรรทัด 27
+// - isStaffSourced() — บรรทัด 30
+// - ProductsManage() — บรรทัด 37
+// - loadData() — บรรทัด 49
+// - categoryName() — บรรทัด 56
+// - openCreate() — บรรทัด 73
+// - openEdit() — บรรทัด 79
+// - handleDelete() — บรรทัด 85
+// - handleImageFile() — บรรทัด 102
+// - handleSubmit() — บรรทัด 124
 
 import { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
@@ -20,9 +20,13 @@ import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiImage } from "react-icons/fi";
 import Modal from "./components/Modal";
 import { fetchProducts, addProduct, updateProduct, deleteProduct, fetchCategories, uploadProductImage, PRODUCT_SOURCE } from "../products/productService";
 
+// 🟢 หน้าจัดการสินค้าของ Staff ทำแบบเดียวกับของ Admin (admin/ProductsManage.jsx) เป๊ะๆ
+// เพื่อให้ Staff เพิ่ม/แก้ไข/ลบสินค้าได้จากหน้าตาที่คุ้นเคยเดียวกัน แทนที่จะต้องไปใช้ฟอร์มฝั่งลูกค้าในหน้าโปรไฟล์
+
 const EMPTY_FORM = { productName: "", categoryId: "", brand: "", price: "", discountPrice: "", stock: "", image: "", description: "" };
 const currency = (n) => `฿${Number(n || 0).toLocaleString("th-TH")}`;
 
+// 🟢 แยกสินค้าตามคนที่ทำรายการ: Staff/Admin เพิ่มผ่านหน้านี้ (COMPANY) VS Customer โพสต์เองจากหน้าโปรไฟล์ (CUSTOMER)
 const isStaffSourced = (p) => (p.source || PRODUCT_SOURCE.COMPANY) === PRODUCT_SOURCE.COMPANY;
 const ORIGIN_TABS = [
   { key: "all", label: "ทั้งหมด" },
@@ -128,6 +132,7 @@ const ProductsManage = () => {
       if (editingId) {
         updateProduct(editingId, form);
       } else {
+        // 🟢 สินค้าที่เพิ่มจากหน้า Staff นี้ ถือเป็นรายการที่ Staff/Admin เป็นคนทำรายการเสมอ
         addProduct({ ...form, source: PRODUCT_SOURCE.COMPANY });
       }
       setModalOpen(false);
@@ -140,6 +145,7 @@ const ProductsManage = () => {
 
   return (
     <div className="flex w-full flex-col gap-6 !p-6 md:!p-8 !mx-auto !max-w-7xl">
+      {/* 🟢 แท็บแยกที่มาของสินค้า: Staff (เพิ่มจากหน้านี้) VS Customer (โพสต์เองจากหน้าโปรไฟล์) */}
       <div className="flex flex-wrap gap-2 rounded-2xl border border-gray-100 bg-white !p-2 shadow-sm">
         {ORIGIN_TABS.map((tab) => {
           const count = tab.key === "all" ? products.length : tab.key === "staff" ? staffCount : customerCount;

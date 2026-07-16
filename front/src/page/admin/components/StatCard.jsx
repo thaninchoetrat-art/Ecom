@@ -1,3 +1,8 @@
+// front/src/page/admin/components/StatCard.jsx
+// การ์ดสรุปตัวเลข 1 ค่า (ไอคอน + label + value) ใช้เฉพาะใน AdminDashboard.jsx
+// 🗺️ แผนที่ฟังก์ชันในไฟล์นี้ (เลขบรรทัดหลังแทรกคอมเมนต์นี้):
+// - StatCard() — บรรทัด 6
+
 const StatCard = ({ icon, label, value, trend, trendUp, tone = "pink" }) => {
   const toneMap = {
     pink: "bg-pink-50 text-pink-600",
