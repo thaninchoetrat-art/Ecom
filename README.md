@@ -67,7 +67,7 @@
 |------|
 | Admin |
 | Customers |
-| Manager |
+| Admin |
 
 ---
 
