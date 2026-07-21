@@ -241,9 +241,6 @@
 ## เข้าสู่ระบบ / สมัครสมาชิก (Login)
 <img width="800" alt="Login" src="back/image/Login.png" />
 
-## หน้าลูกค้า (Customer)
-<img width="800" alt="Customer" src="back/image/Castomer.png" />
-
 ## ตะกร้าสินค้า (Cart)
 <img width="800" alt="Cart" src="back/image/Cart.png" />
 
@@ -256,17 +253,20 @@
 ## โปรไฟล์ผู้ใช้ (Profile)
 <img width="800" alt="Profile" src="back/image/Profire.png" />
 
-## แผงควบคุมพนักงาน (Staff)
-<img width="800" alt="Staff" src="back/image/Staff.png" />
-
-## แผงควบคุมผู้ดูแลระบบ (Admin)
-<img width="800" alt="Admin" src="back/image/Admin.png" />
-
 ---
 
 # 16. UAT
 
 ทดสอบแบบ User Acceptance Testing (UAT) โดยอ้างอิง Persona ทั้ง 3 คนจากหัวข้อ 11 (Customer/คุณแพรวา, Staff/คุณมานะ, Admin/นายอภิสิทธิ์) เขียน Test Case จากฟังก์ชันจริงของระบบ ไม่ใช่ Persona สมมติ เอกสารฉบับเต็มอยู่ที่ `docs/UAT_TestCase_5Paul.docx`
+
+## หน้าลูกค้า (Customer)
+<img width="800" alt="Customer" src="back/image/Castomer.png" />
+
+## แผงควบคุมพนักงาน (Staff)
+<img width="800" alt="Staff" src="back/image/Staff.png" />
+
+## แผงควบคุมผู้ดูแลระบบ (Admin)
+<img width="800" alt="Admin" src="back/image/Admin.png" />
 
 ## สรุปผลการทดสอบ
 
